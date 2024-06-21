@@ -1,4 +1,9 @@
 // scripts.js
+
+window.addEventListener('beforeunload', function() {
+  window.localStorage.clear();
+  window.sessionStorage.clear();
+});
 const tableHeader = document.getElementById('table-header');
 const tableBody = document.getElementById('table-body');
 // const fileInput = document.getElementById('fileInput');
@@ -313,3 +318,4 @@ function clearSearch() {
   // or
   // Perform any other action you want
 }
+
