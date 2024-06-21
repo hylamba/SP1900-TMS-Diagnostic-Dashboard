@@ -1,57 +1,57 @@
 // scripts.js
 const tableHeader = document.getElementById('table-header');
 const tableBody = document.getElementById('table-body');
-const fileInput = document.getElementById('fileInput');
+// const fileInput = document.getElementById('fileInput');
 
-fileInput.addEventListener('change', handleFileChange);
+// fileInput.addEventListener('change', handleFileChange);
 
-function handleFileChange(event) {
-  const file = fileInput.files[0];
-  const reader = new FileReader();
+// function handleFileChange(event) {
+//   const file = fileInput.files[0];
+//   const reader = new FileReader();
 
-  // Clear the table data before loading new data
-  tableBody.innerHTML = '';
+//   // Clear the table data before loading new data
+//   tableBody.innerHTML = '';
 
-  reader.onload = function(event) {
-    const csvData = event.target.result;
-    const csvRows = csvData.split('\n');
-    const headers = csvRows[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(header => header.trim().replace(/^"|"$/g, ''));
-    const data = [];
-    let hideRows = false; // Initialize the hide rows flag
+//   reader.onload = function(event) {
+//     const csvData = event.target.result;
+//     const csvRows = csvData.split('\n');
+//     const headers = csvRows[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(header => header.trim().replace(/^"|"$/g, ''));
+//     const data = [];
+//     let hideRows = false; // Initialize the hide rows flag
 
-    console.log('Headers:', headers);
+//     console.log('Headers:', headers);
 
-    for (let i = 1; i < csvRows.length; i++) {
-      const row = csvRows[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
-      const rowData = {};
+//     for (let i = 1; i < csvRows.length; i++) {
+//       const row = csvRows[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+//       const rowData = {};
 
-      for (let j = 0; j < row.length; j++) {
-        rowData[headers[j]] = row[j].trim().replace(/^"|"$/g, '');
-      }
+//       for (let j = 0; j < row.length; j++) {
+//         rowData[headers[j]] = row[j].trim().replace(/^"|"$/g, '');
+//       }
 
-      // Add empty strings for missing columns
-      for (let j = row.length; j < headers.length; j++) {
-        rowData[headers[j]] = '';
-      }
+//       // Add empty strings for missing columns
+//       for (let j = row.length; j < headers.length; j++) {
+//         rowData[headers[j]] = '';
+//       }
 
-      if (row[0].startsWith('-')) { // Check if the row starts with '-'
-        hideRows = true; // Set the hide rows flag
-      }
+//       if (row[0].startsWith('-')) { // Check if the row starts with '-'
+//         hideRows = true; // Set the hide rows flag
+//       }
 
-      if (hideRows) { // If the hide rows flag is set, mark the row as hidden
-        rowData['hidden'] = true;
-      }
+//       if (hideRows) { // If the hide rows flag is set, mark the row as hidden
+//         rowData['hidden'] = true;
+//       }
 
-      data.push(rowData);
-    }
+//       data.push(rowData);
+//     }
 
-    console.log('Data:', data);
+//     console.log('Data:', data);
 
-    createTable(headers, data);
-  };
+//     createTable(headers, data);
+//   };
 
-  reader.readAsText(file);
-}
+//   reader.readAsText(file);
+// }
 function initData() {
   // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
   fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
