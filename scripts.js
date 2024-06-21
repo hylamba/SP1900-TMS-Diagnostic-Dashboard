@@ -104,6 +104,7 @@ function initData() {
 
 
 
+let sortDirection = 1;
 
 function createTable(headers, data) {
   const tableHeaderRow = document.createElement('tr');
@@ -111,6 +112,17 @@ function createTable(headers, data) {
   for (let i = 0; i < headers.length; i++) {
     const tableHeaderCell = document.createElement('th');
     tableHeaderCell.textContent = headers[i];
+    tableHeaderCell.addEventListener('click', () => {
+      sortTable(i);
+    });
+
+    // Add an arrow to the header cell
+    const arrow = document.createElement('span');
+    arrow.textContent = ' ▼';
+    arrow.style.display = 'none';
+    tableHeaderCell.appendChild(arrow);
+    tableHeaderCell.arrow = arrow;
+
     tableHeaderRow.appendChild(tableHeaderCell);
   }
 
@@ -235,6 +247,28 @@ function createTable(headers, data) {
   });
 }
 
+function sortTable(columnIndex) {
+  const tableRows = tableBody.rows;
+  const sortedRows = Array.from(tableRows).sort((a, b) => {
+    const aValue = a.cells[columnIndex].textContent;
+    const bValue = b.cells[columnIndex].textContent;
+    if (aValue < bValue) return -sortDirection;
+    if (aValue > bValue) return sortDirection;
+    return 0;
+  });
+
+  // Toggle the sorting direction
+  sortDirection *= -1;
+
+  // Update the arrow in the header cell
+  const headerCell = tableHeader.rows[0].cells[columnIndex];
+  headerCell.arrow.style.display = sortDirection === 1 ? 'none' : 'inline';
+
+  tableBody.innerHTML = '';
+  sortedRows.forEach((row) => {
+    tableBody.appendChild(row);
+  });
+}
 
 
 function exportToCSV() {
