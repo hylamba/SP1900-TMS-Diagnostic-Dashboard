@@ -1,9 +1,9 @@
 // scripts.js
 const tableHeader = document.getElementById('table-header');
 const tableBody = document.getElementById('table-body');
-// const fileInput = document.getElementById('fileInput');
+const fileInput = document.getElementById('fileInput');
 
-// fileInput.addEventListener('change', handleFileChange);
+fileInput.addEventListener('change', handleFileChange);
 
 // function handleFileChange(event) {
 //   const file = fileInput.files[0];
@@ -54,7 +54,7 @@ const tableBody = document.getElementById('table-body');
 // }
 function initData() {
   // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
-  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
+  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
    .then(response => response.text())
    .then(csvData => {
       const csvRows = csvData.split('\n');
