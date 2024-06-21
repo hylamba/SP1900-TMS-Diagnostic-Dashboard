@@ -118,10 +118,19 @@ function createTable(headers, data) {
 
     // Add an arrow to the header cell
     const arrow = document.createElement('span');
-    arrow.textContent = ' ▼';
-    arrow.style.display = 'none';
+    arrow.textContent = '⬇';
+    arrow.style.display = 'inline';
+    arrow.className = 'arrow';
     tableHeaderCell.appendChild(arrow);
     tableHeaderCell.arrow = arrow;
+
+    // Add an up arrow to the header cell
+    const upArrow = document.createElement('span');
+    upArrow.textContent = '⬆';
+    upArrow.style.display = 'inline';
+    upArrow.className = 'up-arrow';
+    tableHeaderCell.appendChild(upArrow);
+    tableHeaderCell.upArrow = upArrow;
 
     tableHeaderRow.appendChild(tableHeaderCell);
   }
@@ -260,9 +269,12 @@ function sortTable(columnIndex) {
   // Toggle the sorting direction
   sortDirection *= -1;
 
-  // Update the arrow in the header cell
+  // Update the arrows in the header cell
   const headerCell = tableHeader.rows[0].cells[columnIndex];
-  headerCell.arrow.style.display = sortDirection === 1 ? 'none' : 'inline';
+  headerCell.arrow.style.display = sortDirection === 1 ? 'inline' : 'none';
+  headerCell.upArrow.style.display = sortDirection === -1 ? 'inline' : 'none';
+  headerCell.arrow.classList.toggle('active', sortDirection === 1);
+  headerCell.upArrow.classList.toggle('active', sortDirection === -1);
 
   tableBody.innerHTML = '';
   sortedRows.forEach((row) => {
