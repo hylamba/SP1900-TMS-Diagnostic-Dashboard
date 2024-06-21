@@ -53,7 +53,8 @@ function handleFileChange(event) {
   reader.readAsText(file);
 }
 function initData() {
-  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
+  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
+  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
    .then(response => response.text())
    .then(csvData => {
       const csvRows = csvData.split('\n');
