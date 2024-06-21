@@ -52,6 +52,48 @@ function handleFileChange(event) {
 
   reader.readAsText(file);
 }
+function initData() {
+  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
+   .then(response => response.text())
+   .then(csvData => {
+      const csvRows = csvData.split('\n');
+      const headers = csvRows[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(header => header.trim().replace(/^"|"$/g, ''));
+      const data = [];
+      let hideRows = false; // Initialize the hide rows flag
+
+      console.log('Headers:', headers);
+
+      for (let i = 1; i < csvRows.length; i++) {
+        const row = csvRows[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+        const rowData = {};
+
+        for (let j = 0; j < row.length; j++) {
+          rowData[headers[j]] = row[j].trim().replace(/^"|"$/g, '');
+        }
+
+        // Add empty strings for missing columns
+        for (let j = row.length; j < headers.length; j++) {
+          rowData[headers[j]] = '';
+        }
+
+        if (row[0].startsWith('-')) { // Check if the row starts with '-'
+          hideRows = true; // Set the hide rows flag
+        }
+
+        if (hideRows) { // If the hide rows flag is set, mark the row as hidden
+          rowData['hidden'] = true;
+        }
+
+        data.push(rowData);
+      }
+
+      console.log('Data:', data);
+
+      createTable(headers, data);
+    });
+}
+
+initData();
 
 
 
