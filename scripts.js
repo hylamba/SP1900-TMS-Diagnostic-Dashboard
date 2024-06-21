@@ -1,9 +1,9 @@
 // scripts.js
 const tableHeader = document.getElementById('table-header');
 const tableBody = document.getElementById('table-body');
-const fileInput = document.getElementById('fileInput');
+// const fileInput = document.getElementById('fileInput');
 
-fileInput.addEventListener('change', handleFileChange);
+// fileInput.addEventListener('change', handleFileChange);
 
 // function handleFileChange(event) {
 //   const file = fileInput.files[0];
@@ -52,11 +52,13 @@ fileInput.addEventListener('change', handleFileChange);
 
 //   reader.readAsText(file);
 // }
+initData();
+
 function initData() {
-  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
+  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
   fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
-   .then(response => response.text())
-   .then(csvData => {
+    .then(response => response.text())
+    .then(csvData => {
       const csvRows = csvData.split('\n');
       const headers = csvRows[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(header => header.trim().replace(/^"|"$/g, ''));
       const data = [];
@@ -94,7 +96,7 @@ function initData() {
     });
 }
 
-initData();
+
 
 
 
@@ -132,14 +134,36 @@ function createTable(headers, data) {
             // Create a popup to show the details of the referenced row
             const popup = document.createElement('div');
             popup.style.position = 'absolute';
-            popup.style.top = '50%';
-            popup.style.left = '50%';
-            popup.style.transform = 'translate(-50%, -50%)';
+            popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
+            popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
             popup.style.background = 'white';
             popup.style.padding = '20px';
-            popup.style.border = '1px solid black';
+            popup.style.border = '0 px solid black';
             popup.style.borderRadius = '10px';
-            popup.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+            popup.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.2)';
+            popup.style.cursor = 'move'; // Add a move cursor to indicate draggability
+        
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+        
+            // Add event listeners for dragging
+            popup.addEventListener('mousedown', (e) => {
+              isDragging = true;
+              offsetX = e.clientX - popup.offsetLeft;
+              offsetY = e.clientY - popup.offsetTop;
+            });
+        
+            document.addEventListener('mousemove', (e) => {
+              if (isDragging) {
+                popup.style.top = `${e.clientY - offsetY}px`;
+                popup.style.left = `${e.clientX - offsetX}px`;
+              }
+            });
+        
+            document.addEventListener('mouseup', () => {
+              isDragging = false;
+            });
 
             const popupContent = document.createElement('div');
             popupContent.innerHTML = `
@@ -154,12 +178,41 @@ function createTable(headers, data) {
             `;
             popup.appendChild(popupContent);
 
+            // const closeButton = document.createElement('button');
+            // closeButton.textContent = 'Close';
+            // closeButton.addEventListener('click', () => {
+            //   popup.remove();
+            // });
+            // popup.appendChild(closeButton);
+            
+            // Create a close button
             const closeButton = document.createElement('button');
-            closeButton.textContent = 'Close';
+            closeButton.textContent = 'x';
+            closeButton.style.font = 'Calibri';
+            closeButton.style.fontSize = '15px';
+            closeButton.style.position = 'absolute'; // Set position to absolute
+            closeButton.style.top = '10px'; // Set top position to 10px
+            closeButton.style.right = '10px'; // Set right position to 10px
+            closeButton.style.lineHeight = '15px'; // Set line height to match font size
+            closeButton.style.width = '15px'; // Set width to match font size
+            closeButton.style.height = '15px'; // Set height to match font size
+            closeButton.style.padding = '0'; // Remove padding
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.backgroundColor = 'transparent';
+            closeButton.style.border = 'transparent';
+            closeButton.style.fontWeight = 'bold';
+            closeButton.style.color = 'gray'; // Set the initial color to gray
+            closeButton.onmouseover = () => closeButton.style.color = 'black'; // Change the color to black on hover
+            closeButton.onmouseout = () => closeButton.style.color = 'gray'; // Change the color back to gray on mouseout
+
+            // Add an event listener to the close button
             closeButton.addEventListener('click', () => {
               popup.remove();
             });
+
+            // Append the close button to the popup
             popup.appendChild(closeButton);
+
 
             document.body.appendChild(popup);
 
@@ -251,4 +304,12 @@ function searchTable(event) {
       }
     }
   }
+}
+
+function clearSearch() {
+  // window.location.href = "/"; // Return to home page
+  // or
+  window.location.reload(); // Reload the current page
+  // or
+  // Perform any other action you want
 }
