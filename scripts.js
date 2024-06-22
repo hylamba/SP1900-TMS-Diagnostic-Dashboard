@@ -60,8 +60,8 @@ const tableBody = document.getElementById('table-body');
 initData();
 
 function initData() {
-  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
-  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
+  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
+  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
     .then(response => response.text())
     .then(csvData => {
       const csvRows = csvData.split('\n');
@@ -365,3 +365,35 @@ function clearSearch() {
   // Perform any other action you want
 }
 
+// Add an event listener to the Go to Top button
+document.addEventListener('DOMContentLoaded', function() {
+  const goToTopButton = document.querySelector('.js-gotop');
+
+  goToTopButton.addEventListener('click', function(event) {
+    event.preventDefault();
+
+    // Animate the scroll to the top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Show/hide the Go to Top button based on scroll position
+  window.addEventListener('scroll', function() {
+    const scrollTop = window.scrollY;
+    if (scrollTop > 200) {
+      goToTopButton.style.display = 'block';
+    } else {
+      goToTopButton.style.display = 'none';
+    }
+  });
+});
+
+// const gototop = document.querySelector('.js-gotop');
+// const offset = 200; // adjust this value to your liking
+
+// window.addEventListener('scroll', () => {
+//     if (window.scrollY > offset) {
+//         gototop.style.display = 'block';
+//     } else {
+//         gototop.style.display = 'none';
+//     }
+// });

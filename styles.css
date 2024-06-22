@@ -51,3 +51,39 @@ input[type="search"]:focus {
   .arrow.active, .up-arrow.active {
     color: black;
   }
+
+  .gototop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1;
+}
+
+.js-top {
+    display: none;
+}
+
+.js-top.show {
+    display: block;
+}
+.js-gotop {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    border: none;
+    border-radius: 50%;
+    background-color: #333;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.js-gotop:hover {
+    background-color: #555;
+}
