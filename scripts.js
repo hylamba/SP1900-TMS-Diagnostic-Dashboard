@@ -137,7 +137,10 @@ function createTable(headers, data) {
 
   tableHeader.innerHTML = '';
   tableHeader.appendChild(tableHeaderRow);
+
   let popupCount = 0; // Keep track of the number of popups
+  let popupArray = []; // Keep track of all popups
+
   data.forEach((row, rowIndex) => {
     if (row['hidden']) { // If the row is marked as hidden, skip it
       return;
@@ -165,10 +168,22 @@ function createTable(headers, data) {
             popup.style.position = 'absolute';
             // popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
             // popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
-            popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2 + (popupCount * 20)}px`; 
-            popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
-            // Increment the popup count
-            popupCount++;
+            // popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2 + (popupCount * 20)}px`; 
+            // popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
+            if (popupArray.length === 0) {
+              // If all popups have been closed, reset the popup location
+              popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
+              popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
+            } else {
+              // Otherwise, position the popup below the previous one
+              popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2 + (popupCount * 20)}px`;
+              popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
+            }
+            
+            popup.style.zIndex = popupCount;
+            
+            // Add the popup to the popup array
+            popupArray.push(popup);
 
             popup.style.background = 'white';
             popup.style.padding = '20px';
@@ -186,6 +201,11 @@ function createTable(headers, data) {
               isDragging = true;
               offsetX = e.clientX - popup.offsetLeft;
               offsetY = e.clientY - popup.offsetTop;
+              // Bring the popup to the front when dragging starts
+              popupArray.forEach((p) => {
+                p.style.zIndex = popupCount;
+              });
+              popup.style.zIndex = popupCount + 1000;
             });
         
             document.addEventListener('mousemove', (e) => {
@@ -198,6 +218,9 @@ function createTable(headers, data) {
             document.addEventListener('mouseup', () => {
               isDragging = false;
             });
+
+            // Increment the popup count
+            popupCount++;
 
             const popupContent = document.createElement('div');
             popupContent.innerHTML = `
@@ -232,8 +255,16 @@ function createTable(headers, data) {
             closeButton.onmouseover = () => closeButton.style.color = 'black'; // Change the color to black on hover
             closeButton.onmouseout = () => closeButton.style.color = 'gray'; // Change the color back to gray on mouseout
 
-            // Add an event listener to the close button
+            // Add an event listener to the close button to remove the popup from the array
             closeButton.addEventListener('click', () => {
+              const index = popupArray.indexOf(popup);
+              if (index !== -1) {
+                popupArray.splice(index, 1);
+                if (popupArray.length === 0) {
+                  // If all popups have been closed, reset the popup count
+                  popupCount = 0;
+                }
+              }
               popup.remove();
             });
 
@@ -385,14 +416,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-
-// const gototop = document.querySelector('.js-gotop');
-// const offset = 200; // adjust this value to your liking
-
-// window.addEventListener('scroll', () => {
-//     if (window.scrollY > offset) {
-//         gototop.style.display = 'block';
-//     } else {
-//         gototop.style.display = 'none';
-//     }
-// });
