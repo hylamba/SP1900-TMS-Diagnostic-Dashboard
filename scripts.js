@@ -155,7 +155,10 @@ function createTable(headers, data) {
 
         tableCell.addEventListener('click', () => {
           const reference = tableCell.textContent;
-          const referenceRow = data.find((row) => row['Fault No.'] === reference);
+          // const referenceRow = data.find((row) => row['Fault No.'] === reference);
+          const hiddenRows = data.filter((row) => row['hidden'] === true);
+          const referenceRow = hiddenRows.find((row) => row['Fault No.'] === reference);
+  
           if (referenceRow) {
             // Create a popup to show the details of the referenced row
             const popup = document.createElement('div');
