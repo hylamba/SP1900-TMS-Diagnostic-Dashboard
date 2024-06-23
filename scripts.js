@@ -137,7 +137,7 @@ function createTable(headers, data) {
 
   tableHeader.innerHTML = '';
   tableHeader.appendChild(tableHeaderRow);
-
+  let popupCount = 0; // Keep track of the number of popups
   data.forEach((row, rowIndex) => {
     if (row['hidden']) { // If the row is marked as hidden, skip it
       return;
@@ -163,8 +163,13 @@ function createTable(headers, data) {
             // Create a popup to show the details of the referenced row
             const popup = document.createElement('div');
             popup.style.position = 'absolute';
-            popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
+            // popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
+            // popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
+            popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2 + (popupCount * 20)}px`; 
             popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
+            // Increment the popup count
+            popupCount++;
+
             popup.style.background = 'white';
             popup.style.padding = '20px';
             popup.style.border = '0 px solid black';
@@ -206,13 +211,6 @@ function createTable(headers, data) {
               </table>
             `;
             popup.appendChild(popupContent);
-
-            // const closeButton = document.createElement('button');
-            // closeButton.textContent = 'Close';
-            // closeButton.addEventListener('click', () => {
-            //   popup.remove();
-            // });
-            // popup.appendChild(closeButton);
             
             // Create a close button
             const closeButton = document.createElement('button');
@@ -242,10 +240,8 @@ function createTable(headers, data) {
             // Append the close button to the popup
             popup.appendChild(closeButton);
 
-
             document.body.appendChild(popup);
 
-            
           }
         });
       } else {
