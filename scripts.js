@@ -339,7 +339,7 @@ const searchInput = document.getElementById('search-input');
 searchInput.addEventListener('input', searchTable);
 
 function searchTable(event) {
-  const searchTerm = event.target.value.toLowerCase();
+  const searchTerm = event.target.value.toLowerCase().replace(/[-\s]/g, ''); // Remove - and spaces from search term
   const rows = tableBody.rows;
 
   // Hide all rows initially
@@ -351,7 +351,7 @@ function searchTable(event) {
   for (let i = 0; i < rows.length; i++) {
     const rowCells = rows[i].cells;
     for (let j = 0; j < rowCells.length; j++) {
-      const cellText = rowCells[j].textContent.toLowerCase();
+      const cellText = rowCells[j].textContent.toLowerCase().replace(/[-\s]/g, ''); // Remove - and spaces from cell text
       if (cellText.includes(searchTerm)) {
         rows[i].style.display = '';
         break;
