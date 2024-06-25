@@ -158,28 +158,28 @@ function createTable(headers, data) {
     });
 
     // Add an arrow to the header cell
-    const arrow = document.createElement('span');
-    arrow.textContent = '⇅'; // Initial arrow icon
-    arrow.style.display = 'inline';
-    arrow.className = 'arrow';
-    tableHeaderCell.appendChild(arrow);
-    tableHeaderCell.arrow = arrow;
+    // const arrow = document.createElement('span');
+    // arrow.textContent = '⇅'; // Initial arrow icon
+    // arrow.style.display = 'inline';
+    // arrow.className = 'arrow';
+    // tableHeaderCell.appendChild(arrow);
+    // tableHeaderCell.arrow = arrow;
 
-    // Add an up arrow to the header cell (hidden initially)
-    const upArrow = document.createElement('span');
-    upArrow.textContent = '⬆';
-    upArrow.style.display = 'none';
-    upArrow.className = 'up-arrow';
-    tableHeaderCell.appendChild(upArrow);
-    tableHeaderCell.upArrow = upArrow;
+    // // Add an up arrow to the header cell (hidden initially)
+    // const upArrow = document.createElement('span');
+    // upArrow.textContent = '⬆';
+    // upArrow.style.display = 'none';
+    // upArrow.className = 'up-arrow';
+    // tableHeaderCell.appendChild(upArrow);
+    // tableHeaderCell.upArrow = upArrow;
 
-    // Add a down arrow to the header cell (hidden initially)
-    const downArrow = document.createElement('span');
-    downArrow.textContent = '⬇';
-    downArrow.style.display = 'none';
-    downArrow.className = 'down-arrow';
-    tableHeaderCell.appendChild(downArrow);
-    tableHeaderCell.downArrow = downArrow;
+    // // Add a down arrow to the header cell (hidden initially)
+    // const downArrow = document.createElement('span');
+    // downArrow.textContent = '⬇';
+    // downArrow.style.display = 'none';
+    // downArrow.className = 'down-arrow';
+    // tableHeaderCell.appendChild(downArrow);
+    // tableHeaderCell.downArrow = downArrow;
 
     tableHeaderRow.appendChild(tableHeaderCell);
   }
@@ -533,37 +533,37 @@ function showPopup(faultNo) {
   document.body.appendChild(popup);
 }
 
-function sortTable(columnIndex) {
-  const tableRows = tableBody.rows;
-  const sortedRows = Array.from(tableRows).sort((a, b) => {
-    const aValue = a.cells[columnIndex].textContent;
-    const bValue = b.cells[columnIndex].textContent;
-    if (aValue < bValue) return -sortDirection;
-    if (aValue > bValue) return sortDirection;
-    return 0;
-  });
+// function sortTable(columnIndex) {
+//   const tableRows = tableBody.rows;
+//   const sortedRows = Array.from(tableRows).sort((a, b) => {
+//     const aValue = a.cells[columnIndex].textContent;
+//     const bValue = b.cells[columnIndex].textContent;
+//     if (aValue < bValue) return -sortDirection;
+//     if (aValue > bValue) return sortDirection;
+//     return 0;
+//   });
 
-  // Toggle the sorting direction
-  sortDirection *= -1;
+//   // Toggle the sorting direction
+//   sortDirection *= -1;
 
-  // Update the arrows in the header cell
-  const headerCell = tableHeader.rows[0].cells[columnIndex];
-  headerCell.arrow.style.display = 'none'; // Hide the initial arrow
-  if (sortDirection === 1) {
-    headerCell.downArrow.style.display = 'inline'; // Show the down arrow
-    headerCell.upArrow.style.display = 'none'; // Hide the up arrow
-  } else {
-    headerCell.downArrow.style.display = 'none'; // Hide the down arrow
-    headerCell.upArrow.style.display = 'inline'; // Show the up arrow
-  }
-  headerCell.arrow.classList.toggle('active', sortDirection === 1);
-  headerCell.upArrow.classList.toggle('active', sortDirection === -1);
+//   // Update the arrows in the header cell
+//   const headerCell = tableHeader.rows[0].cells[columnIndex];
+//   headerCell.arrow.style.display = 'none'; // Hide the initial arrow
+//   if (sortDirection === 1) {
+//     headerCell.downArrow.style.display = 'inline'; // Show the down arrow
+//     headerCell.upArrow.style.display = 'none'; // Hide the up arrow
+//   } else {
+//     headerCell.downArrow.style.display = 'none'; // Hide the down arrow
+//     headerCell.upArrow.style.display = 'inline'; // Show the up arrow
+//   }
+//   headerCell.arrow.classList.toggle('active', sortDirection === 1);
+//   headerCell.upArrow.classList.toggle('active', sortDirection === -1);
 
-  tableBody.innerHTML = '';
-  sortedRows.forEach((row) => {
-    tableBody.appendChild(row);
-  });
-}
+//   tableBody.innerHTML = '';
+//   sortedRows.forEach((row) => {
+//     tableBody.appendChild(row);
+//   });
+// }
 
 
 function exportToCSV() {
