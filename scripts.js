@@ -412,9 +412,12 @@ function createTable(headers, data) {
 
 
 function getReferenceText(text) {
-  const codeRegex = /\b([A-Z]{2,3} \d{3,})\b/g;
+  console.log("reference text: "+text);
+  const codeRegex = /[A-Z]{2,3} \d{3,}(?= |$|&|,|>=|#| |>|=|<|<=)/g;
   return text.replace(codeRegex, (match) => {
     const referenceRow = globalData.find(row => row['Fault No.'] === match);
+    console.log("row: "+globalData.find(row => row['Fault No.'] === match));
+    console.log("matched: "+match);
     if (referenceRow) {
       return `<a style="color: black; text-decoration: underline; cursor: pointer;" onclick="${`showPopup('${match}')`}"">${match}</a>`;
     } else {
