@@ -606,8 +606,8 @@ function exportToCSV() {
 }
 
 // Add an event listener to a button to trigger the export
-const exportButton = document.getElementById('export-button');
-exportButton.addEventListener('click', exportToCSV);
+// const exportButton = document.getElementById('export-button');
+// exportButton.addEventListener('click', exportToCSV);
 
 // Add a search input field
 const searchInput = document.getElementById('search-input');
