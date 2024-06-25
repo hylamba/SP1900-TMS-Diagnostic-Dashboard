@@ -114,36 +114,36 @@ function initData() {
 //   return accordionList;
 // }
 
-function createAccordionList(row, data) {
-  const accordionList = document.createElement('ul');
-  accordionList.className = 'accordion-list';
+// function createAccordionList(row, data) {
+//   const accordionList = document.createElement('ul');
+//   accordionList.className = 'accordion-list';
 
-  const listItem = document.createElement('li');
-  listItem.textContent = `${row['LEVEL']}`;
-  accordionList.appendChild(listItem);
+//   const listItem = document.createElement('li');
+//   listItem.textContent = `${row['LEVEL']}`;
+//   accordionList.appendChild(listItem);
 
-  // Check for references in each relevant column
-  ['D1', 'D2', 'D3', 'D4'].forEach(column => {
-    if (row[column] && row[column].startsWith('CAB')) {
-      const referencedRows = getReferencedRows(data, row[column]);
-      referencedRows.forEach(referencedRow => {
-        const nestedListItem = createAccordionList(referencedRow, data);
-        accordionList.appendChild(nestedListItem);
-      });
-    }
-  });
+//   // Check for references in each relevant column
+//   ['D1', 'D2', 'D3', 'D4'].forEach(column => {
+//     if (row[column] && row[column].startsWith('CAB')) {
+//       const referencedRows = getReferencedRows(data, row[column]);
+//       referencedRows.forEach(referencedRow => {
+//         const nestedListItem = createAccordionList(referencedRow, data);
+//         accordionList.appendChild(nestedListItem);
+//       });
+//     }
+//   });
 
-  return accordionList;
-}
+//   return accordionList;
+// }
 
 
 // function getReferencedRows(data, level, processedLevels) {
 //   return data.filter(row => row['LEVEL'] === level && row['hidden'] && !processedLevels.has(row['LEVEL']));
 // }
 
-function getReferencedRows(data, reference) {
-  return data.filter(row => Object.values(row).includes(reference) && row['hidden']);
-}
+// function getReferencedRows(data, reference) {
+//   return data.filter(row => Object.values(row).includes(reference) && row['hidden']);
+// }
 
 let sortDirection = 1;
 
@@ -342,16 +342,17 @@ function createTable(headers, data) {
               
               // Create a close button
               const closeButton = document.createElement('button');
-              closeButton.textContent = 'x';
+              closeButton.textContent = '̽';
               closeButton.style.font = 'Calibri';
-              closeButton.style.fontSize = '15px';
+              closeButton.style.fontSize = '40px'; // Large font size
               closeButton.style.position = 'absolute'; // Set position to absolute
               closeButton.style.top = '10px'; // Set top position to 10px
               closeButton.style.right = '10px'; // Set right position to 10px
-              closeButton.style.lineHeight = '15px'; // Set line height to match font size
-              closeButton.style.width = '15px'; // Set width to match font size
-              closeButton.style.height = '15px'; // Set height to match font size
-              closeButton.style.padding = '0'; // Remove padding
+              closeButton.style.lineHeight = '40px'; // Set line height to match font size
+              closeButton.style.width = '30px'; // Smaller width
+              closeButton.style.height = '30px'; // Smaller height
+              closeButton.style.padding = '5px'; // Increase padding to make clickable area larger
+              closeButton.style.borderRadius = '50%'; // Make the button circular
               closeButton.style.cursor = 'pointer';
               closeButton.style.backgroundColor = 'transparent';
               closeButton.style.border = 'transparent';
@@ -496,16 +497,17 @@ function showPopup(faultNo) {
 
   // Create a close button
   const closeButton = document.createElement('button');
-  closeButton.textContent = 'x';
+  closeButton.textContent = '̽';
   closeButton.style.font = 'Calibri';
-  closeButton.style.fontSize = '15px';
+  closeButton.style.fontSize = '40px'; // Large font size
   closeButton.style.position = 'absolute'; // Set position to absolute
   closeButton.style.top = '10px'; // Set top position to 10px
   closeButton.style.right = '10px'; // Set right position to 10px
-  closeButton.style.lineHeight = '15px'; // Set line height to match font size
-  closeButton.style.width = '15px'; // Set width to match font size
-  closeButton.style.height = '15px'; // Set height to match font size
-  closeButton.style.padding = '0'; // Remove padding
+  closeButton.style.lineHeight = '40px'; // Set line height to match font size
+  closeButton.style.width = '30px'; // Smaller width
+  closeButton.style.height = '30px'; // Smaller height
+  closeButton.style.padding = '5px'; // Increase padding to make clickable area larger
+  closeButton.style.borderRadius = '50%'; // Make the button circular
   closeButton.style.cursor = 'pointer';
   closeButton.style.backgroundColor = 'transparent';
   closeButton.style.border = 'transparent';
@@ -566,44 +568,44 @@ function showPopup(faultNo) {
 // }
 
 
-function exportToCSV() {
-  const data = [];
-  const headers = [];
-  const rows = tableBody.rows;
+// function exportToCSV() {
+//   const data = [];
+//   const headers = [];
+//   const rows = tableBody.rows;
 
-  // Get the headers from the table
-  const tableHeaderRow = tableHeader.rows[0];
-  for (let i = 0; i < tableHeaderRow.cells.length; i++) {
-    const headerCell = tableHeaderRow.cells[i];
-    // Remove the arrow icons from the header cell text, but keep dashes, brackets, and punctuation
-    const headerText = headerCell.textContent.replace(/[^a-zA-Z0-9\s\-()\[\],.!?:;]/g, '');
-    headers.push(headerText);
-  }
+//   // Get the headers from the table
+//   const tableHeaderRow = tableHeader.rows[0];
+//   for (let i = 0; i < tableHeaderRow.cells.length; i++) {
+//     const headerCell = tableHeaderRow.cells[i];
+//     // Remove the arrow icons from the header cell text, but keep dashes, brackets, and punctuation
+//     const headerText = headerCell.textContent.replace(/[^a-zA-Z0-9\s\-()\[\],.!?:;]/g, '');
+//     headers.push(headerText);
+//   }
 
-  // Add the headers to the data array
-  data.push(headers);
+//   // Add the headers to the data array
+//   data.push(headers);
 
-  // Get the data from the table, only considering visible rows
-  for (let i = 0; i < rows.length; i++) {
-    if (rows[i].style.display !== 'none') {
-      const row = [];
-      const cells = rows[i].cells;
-      for (let j = 0; j < cells.length; j++) {
-        const cellText = cells[j].textContent.replace(/[^a-zA-Z0-9\s\-()\[\],.!?:;]/g, '');
-        row.push(cellText);
-      }
-      data.push(row);
-    }
-  }
+//   // Get the data from the table, only considering visible rows
+//   for (let i = 0; i < rows.length; i++) {
+//     if (rows[i].style.display !== 'none') {
+//       const row = [];
+//       const cells = rows[i].cells;
+//       for (let j = 0; j < cells.length; j++) {
+//         const cellText = cells[j].textContent.replace(/[^a-zA-Z0-9\s\-()\[\],.!?:;]/g, '');
+//         row.push(cellText);
+//       }
+//       data.push(row);
+//     }
+//   }
 
-  const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'data.csv';
-  a.click();
-}
+//   const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+//   const blob = new Blob([csvContent], { type: 'text/csv' });
+//   const url = URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.href = url;
+//   a.download = 'data.csv';
+//   a.click();
+// }
 
 // Add an event listener to a button to trigger the export
 // const exportButton = document.getElementById('export-button');
