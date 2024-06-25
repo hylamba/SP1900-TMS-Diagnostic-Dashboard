@@ -1,4 +1,4 @@
-Fault No.,Fault Name for display,LEVEL,Car Type,D1,D2,D3,D4,DTD,C1,CTD
+﻿Fault No.,Fault Name for display,LEVEL,Car Type,D1,D2,D3,D4,DTD,C1,CTD
 CAB-001,PWM AI input fault,2,DT-CU1,CAB 906,CAB 015,,,5s,,
 CAB-002,PWM failure(Manual),3,DT-CU1,CAB 907,CAB 905,VOB 004,,,,
 CAB-003,PWM failure(Auto),2,DT-CU1,CAB 901,CAB 905,,,,,
