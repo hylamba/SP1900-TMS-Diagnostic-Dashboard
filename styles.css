@@ -1,6 +1,6 @@
 /* styles.css */
 body {
-    font-family: 'Calibri', sans-serif, sans-serif;
+    font-family: 'Calibri';
     background-color: #f2f2f2;
     padding: 20px;
 }
@@ -87,3 +87,27 @@ input[type="search"]:focus {
 .js-gotop:hover {
     background-color: #555;
 }
+
+.filter-button {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-right: 10px;
+    cursor: pointer;
+    background: white;
+    color: #727578;
+    margin-bottom: 10px;
+    font-family: 'Calibri';
+    font-size: 16px;
+  }
+  
+  .filter-button:hover {
+    background-color: #ccc; /* change this to your desired hover color */
+    color: gray; /* same hover text color as pagination buttons */
+  }
+  
+
+  .pagination-link:hover {
+    background-color: #ccc; /* change this to your desired hover color */
+    cursor: pointer;
+  }

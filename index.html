@@ -25,17 +25,14 @@
     <div class="container">
         <h1 id="dashboard-title" onclick="clearSearch()">SP1900 TMS Diagnostic Dashboard</h1>
         <input type="search" id="search-input" placeholder="Search...">
-        <!-- <button id="export-button">Export to CSV</button> -->
+        <div id="filter-container"></div>
         <table id="table">
             <thead id="table-header"></thead>
             <tbody id="table-body"></tbody>
         </table>
+        <div id="pagination-container"></div>
     </div>
     <script src="scripts.js"></script>
-    <!-- <div class="gototop js-top">
-        <a href="#" class="js-gotop">Go to Top</a>
-    </div> -->
-    <!-- <button class="js-gotop" style="display: none; position: fixed; bottom: 20px; right: 20px;">Go to Top</button> -->
     <button class="js-gotop" style="display: none; position: fixed; bottom: 20px; right: 20px;">
         <i class="fas fa-arrow-up"></i>
     </button>

@@ -6,62 +6,33 @@ window.addEventListener('beforeunload', function() {
 });
 const tableHeader = document.getElementById('table-header');
 const tableBody = document.getElementById('table-body');
+const paginationContainer = document.getElementById('pagination-container');
+const filterContainer = document.getElementById('filter-container');
 
 // Global data array to store CSV data
 let globalData = [];
 let popupCount = 0; // Initialize popup count to 0
 let popupArray = []; // Initialize popup array
+let filteredData = [];
+let currentPage = 1;
+let rowsPerPage = 10;
+let totalPages = 0;
+let hiddenData = [];
+let headers;
+
 initData();
 
-// function initData() {
-//   // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
-//   fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
-//     .then(response => response.text())
-//     .then(csvData => {
-//       const csvRows = csvData.split('\n');
-//       const headers = csvRows[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(header => header.trim().replace(/^"|"$/g, ''));
-//       const data = [];
-//       let hideRows = false; // Initialize the hide rows flag
 
-//       console.log('Headers:', headers);
-
-//       for (let i = 1; i < csvRows.length; i++) {
-//         const row = csvRows[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
-//         const rowData = {};
-
-//         for (let j = 0; j < row.length; j++) {
-//           rowData[headers[j]] = row[j].trim().replace(/^"|"$/g, '');
-//         }
-
-//         // Add empty strings for missing columns
-//         for (let j = row.length; j < headers.length; j++) {
-//           rowData[headers[j]] = '';
-//         }
-
-//         if (row[0].startsWith('-')) { // Check if the row starts with '-'
-//           hideRows = true; // Set the hide rows flag
-//         }
-
-//         if (hideRows) { // If the hide rows flag is set, mark the row as hidden
-//           rowData['hidden'] = true;
-//         }
-
-//         data.push(rowData);
-//       }
-
-//       console.log('Data:', data);
-
-//       createTable(headers, data);
-//     });
-// }
 function initData() {
   fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
+  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
     .then(response => response.text())
     .then(csvData => {
       const csvRows = csvData.split('\n');
-      const headers = csvRows[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(header => header.trim().replace(/^"|"$/g, ''));
+      headers = csvRows[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(header => header.trim().replace(/^"|"$/g, ''));
       let hideRows = false; // Initialize the hide rows flag
       globalData = []; // Reset global data
+      hiddenData = [];
 
       for (let i = 1; i < csvRows.length; i++) {
         const row = csvRows[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
@@ -77,75 +48,74 @@ function initData() {
 
         if (hideRows) {
           rowData['hidden'] = true;
+          hiddenData.push(rowData);
         }
 
         globalData.push(rowData);
       }
-
+      filteredData=globalData; //initialize filteredData with globalData
+      createFilter();
       createTable(headers, globalData);
+      // console.log("global: "+globalData);
+      // console.log("filter: "+filteredData);
+      // console.log("hidden: "+hiddenData);
     });
 }
 
-// Function to create the accordion list
-// function createAccordionList(row, processedLevels = new Set()) {
-//   if (processedLevels.has(row['LEVEL'])) {
-//     return document.createElement('ul'); // Return an empty list to stop recursion
-//   }
+let selectedFilter = 'ALL';
 
-//   processedLevels.add(row['LEVEL']); // Mark this level as processed
+function createFilter() {
+  const filterContainer = document.getElementById('filter-container');
+  const visibleRows = globalData.filter(row =>!row['hidden']);
+  const faultNos = visibleRows.map(row => row['Fault No.']);
 
-//   const accordionList = document.createElement('ul');
-//   accordionList.className = 'accordion-list';
+  const faultNoPrefixes = {};
+  faultNos.forEach((faultNo) => {
+    const prefix = faultNo.split('-')[0];
+    if (!faultNoPrefixes[prefix]) {
+      faultNoPrefixes[prefix] = [];
+    }
+    faultNoPrefixes[prefix].push(faultNo);
+  });
 
-//   const listItem = document.createElement('li');
-//   listItem.textContent = row['Fault No.'];
+  const filterTabs = ['All',...Object.keys(faultNoPrefixes)]; // Add 'All' and unique fault no prefixes to filter tabs
 
-//   const referencedRows = getReferencedRows(globalData, row['LEVEL'], processedLevels);
-//   if (referencedRows.length > 0) {
-//     const nestedList = document.createElement('ul');
-//     referencedRows.forEach((referencedRow) => {
-//       const nestedListItem = createAccordionList(referencedRow, new Set(processedLevels)); // Pass a copy of processed levels
-//       nestedList.appendChild(nestedListItem);
-//     });
-//     listItem.appendChild(nestedList);
-//   }
+  filterTabs.forEach((filter) => {
+    const filterTab = document.createElement('button');
+    filterTab.className = 'filter-button';
+    filterTab.textContent = filter;
+    filterContainer.appendChild(filterTab);
 
-//   accordionList.appendChild(listItem);
-//   return accordionList;
-// }
+    filterTab.addEventListener('click', () => {
+      selectedFilter = filter; // Update the selected filter
+      if (filter === 'All') {
+        filteredData = globalData;
+      } else {
+        const prefix = filter;
+        filteredData = globalData.filter((row) => row['Fault No.'].startsWith(prefix + '-'));
+      }
+      hiddenData = globalData.filter(row => row['hidden']); // Update hiddenData array
+      currentPage = 1; // Reset current page to 1 when filter changes
+      createTable(headers, filteredData);
+      createPagination();
+    });
+  });
+}
 
-// function createAccordionList(row, data) {
-//   const accordionList = document.createElement('ul');
-//   accordionList.className = 'accordion-list';
+function colorSelectedFilter(){
+  // Color the selected filter button
+  filterContainer.querySelectorAll('.filter-button').forEach((tab) => {
+    if (tab.textContent === selectedFilter) {
+      tab.style.background = '#727578';
+      tab.style.color = '#fff';
+    } else {
+      tab.style.background = '';
+      tab.style.color = '';
+    }
+  });
+}
 
-//   const listItem = document.createElement('li');
-//   listItem.textContent = `${row['LEVEL']}`;
-//   accordionList.appendChild(listItem);
-
-//   // Check for references in each relevant column
-//   ['D1', 'D2', 'D3', 'D4'].forEach(column => {
-//     if (row[column] && row[column].startsWith('CAB')) {
-//       const referencedRows = getReferencedRows(data, row[column]);
-//       referencedRows.forEach(referencedRow => {
-//         const nestedListItem = createAccordionList(referencedRow, data);
-//         accordionList.appendChild(nestedListItem);
-//       });
-//     }
-//   });
-
-//   return accordionList;
-// }
-
-
-// function getReferencedRows(data, level, processedLevels) {
-//   return data.filter(row => row['LEVEL'] === level && row['hidden'] && !processedLevels.has(row['LEVEL']));
-// }
-
-// function getReferencedRows(data, reference) {
-//   return data.filter(row => Object.values(row).includes(reference) && row['hidden']);
-// }
-
-let sortDirection = 1;
+// let sortDirection = 1;
 
 function createTable(headers, data) {
   const tableHeaderRow = document.createElement('tr');
@@ -153,64 +123,30 @@ function createTable(headers, data) {
   for (let i = 0; i < headers.length; i++) {
     const tableHeaderCell = document.createElement('th');
     tableHeaderCell.textContent = headers[i];
-    tableHeaderCell.addEventListener('click', () => {
-      sortTable(i);
-    });
-
-    // Add an arrow to the header cell
-    // const arrow = document.createElement('span');
-    // arrow.textContent = '⇅'; // Initial arrow icon
-    // arrow.style.display = 'inline';
-    // arrow.className = 'arrow';
-    // tableHeaderCell.appendChild(arrow);
-    // tableHeaderCell.arrow = arrow;
-
-    // // Add an up arrow to the header cell (hidden initially)
-    // const upArrow = document.createElement('span');
-    // upArrow.textContent = '⬆';
-    // upArrow.style.display = 'none';
-    // upArrow.className = 'up-arrow';
-    // tableHeaderCell.appendChild(upArrow);
-    // tableHeaderCell.upArrow = upArrow;
-
-    // // Add a down arrow to the header cell (hidden initially)
-    // const downArrow = document.createElement('span');
-    // downArrow.textContent = '⬇';
-    // downArrow.style.display = 'none';
-    // downArrow.className = 'down-arrow';
-    // tableHeaderCell.appendChild(downArrow);
-    // tableHeaderCell.downArrow = downArrow;
-
+    // tableHeaderCell.addEventListener('click', () => {
+    //   sortTable(i);
+    // });
     tableHeaderRow.appendChild(tableHeaderCell);
   }
+  
+  let visibleData = data.filter(row =>!row['hidden']);
+  totalPages = Math.ceil(visibleData.length / rowsPerPage);
+
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+
+  const tableRows = visibleData.slice(startIndex, endIndex);
 
   tableHeader.innerHTML = '';
   tableHeader.appendChild(tableHeaderRow);
+  tableBody.innerHTML = ''; // Clear the table body
 
-  // let popupCount = 0; // Keep track of the number of popups
-  // let popupArray = []; // Keep track of all popups
-
-  data.forEach((row, rowIndex) => {
+  tableRows.forEach((row) => {
     if (row['hidden']) { // If the row is marked as hidden, skip it
       return;
     }
     const tableRow = document.createElement('tr');
 
-    // for (let i = 0; i < headers.length; i++) {
-    //   const tableCell = document.createElement('td');
-    //   tableCell.textContent = row[headers[i]] !== undefined ? row[headers[i]] : '';
-
-    //   // Add event listener to cells that contain references to other rows
-    //   if (tableCell.textContent.startsWith('CAB ')) {
-    //     tableCell.style.cursor = 'pointer'; // Change the cursor to a pointer on hover
-    //     tableCell.style.textDecoration = 'underline'; // Underline the clickable text
-
-    //     tableCell.addEventListener('click', () => {
-    //       const reference = tableCell.textContent;
-    //       // const referenceRow = data.find((row) => row['Fault No.'] === reference);
-    //       const hiddenRows = data.filter((row) => row['hidden'] === true);
-    //       // const referenceRow = hiddenRows.find((row) => row['Fault No.'] === reference);
-    //       const referenceRow = globalData.find(row => row['Fault No.'] === reference && row['hidden']);
     for (let i = 0; i < headers.length; i++) {
       const tableCell = document.createElement('td');
       tableCell.textContent = row[headers[i]] !== undefined ? row[headers[i]] : '';
@@ -219,7 +155,7 @@ function createTable(headers, data) {
       if (['D1', 'D2', 'D3', 'D4'].some((column) => row[column] === tableCell.textContent)) {
         
     
-        const faultNos = data.map((row) => row['Fault No.']);
+        const faultNos = hiddenData.map((row) => row['Fault No.']);
     
         if (faultNos.includes(tableCell.textContent) && tableCell.textContent.trim() !== '') {
           tableCell.style.textDecoration = 'underline'; // Underline the clickable text
@@ -229,11 +165,11 @@ function createTable(headers, data) {
         tableCell.addEventListener('click', () => {
           const reference = tableCell.textContent;
           if (reference.trim() !== '') { // Check if the cell is not blank
-            const referenceRow = data.find((row) => row['Fault No.'] === reference);
+            const referenceRow = hiddenData.find((row) => row['Fault No.'] === reference);
       
             if (!referenceRow) {
               ['D1', 'D2', 'D3', 'D4'].some((column) => {
-                data.some((row) => {
+                hiddenData.some((row) => {
                   if (row[column] === reference) {
                     referenceRow = row;
                     return true;
@@ -246,10 +182,7 @@ function createTable(headers, data) {
               // Create a popup to show the details of the referenced row
               const popup = document.createElement('div');
               popup.style.position = 'absolute';
-              // popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
-              // popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
-              // popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2 + (popupCount * 20)}px`; 
-              // popup.style.left = `${window.scrollX + (window.innerWidth - popup.offsetWidth) / 2}px`;
+              
               if (popupArray.length === 0) {
                 // If all popups have been closed, reset the popup location
                 popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
@@ -301,17 +234,6 @@ function createTable(headers, data) {
 
               // Increment the popup count
               popupCount++;
-              // const popupContent = document.createElement('div');
-              // popupContent.innerHTML = `
-              //   <h2>${reference}</h2>
-              //   <table>
-              //     <tr><th>No.</th><td>${referenceRow['Fault No.']}</td></tr>
-              //     <tr><th>Monitoring Item</th><td>${referenceRow['Fault Name for display']}</td></tr>
-              //     <tr><th>Detect</th><td>${referenceRow['LEVEL']}</td></tr>
-              //     <!-- <tr><th></th><td>${referenceRow['Car Type']}</td></tr> -->
-              //     <!-- Add more columns as needed -->
-              //   </table>
-              // `;
 
 
               const popupContent = document.createElement('div');
@@ -325,21 +247,8 @@ function createTable(headers, data) {
                 </table>
               `;
 
-              
-
-              
-
-
               popup.appendChild(popupContent);
-              
-              // const accordionContainer = document.createElement('div');
-              // accordionContainer.className = 'accordion-container';
-              // const accordionList = createAccordionList(referenceRow, globalData);
-              // accordionContainer.appendChild(accordionList);
-              // popup.appendChild(accordionContainer);
 
-              
-              
               // Create a close button
               const closeButton = document.createElement('button');
               closeButton.textContent = '̽';
@@ -390,33 +299,135 @@ function createTable(headers, data) {
 
     tableBody.appendChild(tableRow);
   });
+  createPagination();
+  colorSelectedFilter();
 }
 
+function createPagination() {
+  paginationContainer.innerHTML = '';
 
-// function getReferenceText(text) {
-//   const codeRegex = /\b([A-Z]{2,3} \d{3,})\b/g;
-//   const codes = text.match(codeRegex);
-//   if (codes) {
-//     return codes.map(code => {
-//       const referenceRow = globalData.find(row => row['Fault No.'] === code);
-//       if (referenceRow) {
-//         return `<a style="color: black; text-decoration: underline;" onclick="${`showPopup('${code}')`}">${code}</a>`;
-//       } else {
-//         return code;
-//       }
-//     }).join(', ');
-//   } else {
-//     return text;
-//   }
-// }
+  const rowsPerPageSelect = document.createElement('select');
+  rowsPerPageSelect.id = 'rows-per-page-select';
+  rowsPerPageSelect.style.marginRight = '10px';
 
+  const rowsPerPageOptions = [10, 25, 50, "All"];
+  rowsPerPageOptions.forEach((option) => {
+    const optionElement = document.createElement('option');
+    if (option === "All") {
+      optionElement.value = globalData.filter(row => !row['hidden']).length;
+      optionElement.textContent = "All rows";
+    } else {
+      optionElement.value = option;
+      optionElement.textContent = `${option} rows`;
+    }
+    rowsPerPageSelect.appendChild(optionElement);
+  });
+
+  rowsPerPageSelect.value = rowsPerPage;
+  rowsPerPageSelect.addEventListener('change', (e) => {
+    rowsPerPage = parseInt(e.target.value);
+    const filteredDataTemp = filteredData.filter(row => !row['hidden']); // Filtered data based on current filter
+    const totalPagesNew = Math.ceil(filteredDataTemp.length / rowsPerPage);
+    currentPage = Math.min(currentPage, totalPagesNew); // Ensure currentPage doesn't exceed totalPagesNew
+    createTable(headers, filteredData);
+  });
+
+  paginationContainer.appendChild(rowsPerPageSelect);
+
+  // const firstPageButton = document.createElement('a');
+  // firstPageButton.href = '#';
+  // firstPageButton.textContent = 'First';
+  // firstPageButton.className = 'pagination-link';
+  // firstPageButton.addEventListener('click', (e) => {
+  //   e.preventDefault();
+  //   currentPage = 1;
+  //   createTable(headers, globalData);
+  // });
+  // paginationContainer.appendChild(firstPageButton);
+
+  const previousPageButton = document.createElement('a');
+  previousPageButton.href = '#';
+  previousPageButton.textContent = '<';
+  previousPageButton.className = 'pagination-link';
+  previousPageButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (currentPage > 1) {
+      currentPage--;
+      createTable(headers, filteredData);
+    }
+  });
+  paginationContainer.appendChild(previousPageButton);
+
+  for (let i = 1; i <= totalPages; i++) {
+    const paginationLink = document.createElement('a');
+    paginationLink.href = '#';
+    paginationLink.textContent = i;
+    paginationLink.className = 'pagination-link';
+    if (i === currentPage) {
+      paginationLink.className += ' active';
+    }
+
+    paginationLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentPage = i;
+      createTable(headers, filteredData);
+    });
+    paginationContainer.appendChild(paginationLink);
+  }
+
+  const nextPageButton = document.createElement('a');
+  nextPageButton.href = '#';
+  nextPageButton.textContent = '>';
+  nextPageButton.className = 'pagination-link';
+  nextPageButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (currentPage < totalPages) {
+      currentPage++;
+      createTable(headers, filteredData);
+    }
+  });
+  paginationContainer.appendChild(nextPageButton);
+
+  // const lastPageButton = document.createElement('a');
+  // lastPageButton.href = '#';
+  // lastPageButton.textContent = 'Last';
+  // lastPageButton.className = 'pagination-link';
+  // lastPageButton.addEventListener('click', (e) => {
+  //   e.preventDefault();
+  //   currentPage = totalPages;
+  //   createTable(headers, globalData);
+  // });
+  // paginationContainer.appendChild(lastPageButton);
+
+  // Style the pagination container
+  paginationContainer.style.textAlign = 'right';
+  paginationContainer.style.marginTop = '20px';
+
+  // Style the pagination links
+  const paginationLinks = paginationContainer.children;
+  for (let i = 0; i < paginationLinks.length; i++) {
+    paginationLinks[i].style.font = "Calibri";
+    paginationLinks[i].style.border = '1px solid #ddd';
+    paginationLinks[i].style.borderRadius = '5px';
+    paginationLinks[i].style.padding = '5px 10px';
+    paginationLinks[i].style.margin = '0 5px';
+    paginationLinks[i].style.cursor = 'pointer';
+    paginationLinks[i].style.color = 'gray';
+    paginationLinks[i].style.textDecoration = 'none';
+
+    if (paginationLinks[i].classList.contains('active')) {
+      paginationLinks[i].style.background = '#727578';
+      paginationLinks[i].style.color = '#fff';
+    }
+  }
+}
 
 function getReferenceText(text) {
   // console.log(text);
   const codeRegex = /[A-Z]{2}[A-Z0-9]?\s?\d{3}(?= |$|&|,|>=|#| |>|=|<|<=)/g;
   return text.replace(codeRegex, (match) => {
     // console.log(`Match: ${match}`);
-    const referenceRow = globalData.find(row => row['Fault No.'] === match);
+    const referenceRow = hiddenData.find(row => row['Fault No.'] === match);
     // console.log(`Reference row: ${referenceRow}`);
     if (referenceRow) {
       return `<a style="color: black; text-decoration: underline; cursor: pointer;" onclick="${`showPopup('${match}')`}"">${match}</a>`;
@@ -427,7 +438,7 @@ function getReferenceText(text) {
 }
 
 function showPopup(faultNo) {
-  const referenceRow = globalData.find((row) => row['Fault No.'] === faultNo);
+  const referenceRow = hiddenData.find((row) => row['Fault No.'] === faultNo);
   if (!referenceRow) {
     console.error(`No row found with Fault No. ${faultNo}`);
     return;
@@ -538,82 +549,6 @@ function showPopup(faultNo) {
   document.body.appendChild(popup);
 }
 
-// function sortTable(columnIndex) {
-//   const tableRows = tableBody.rows;
-//   const sortedRows = Array.from(tableRows).sort((a, b) => {
-//     const aValue = a.cells[columnIndex].textContent;
-//     const bValue = b.cells[columnIndex].textContent;
-//     if (aValue < bValue) return -sortDirection;
-//     if (aValue > bValue) return sortDirection;
-//     return 0;
-//   });
-
-//   // Toggle the sorting direction
-//   sortDirection *= -1;
-
-//   // Update the arrows in the header cell
-//   const headerCell = tableHeader.rows[0].cells[columnIndex];
-//   headerCell.arrow.style.display = 'none'; // Hide the initial arrow
-//   if (sortDirection === 1) {
-//     headerCell.downArrow.style.display = 'inline'; // Show the down arrow
-//     headerCell.upArrow.style.display = 'none'; // Hide the up arrow
-//   } else {
-//     headerCell.downArrow.style.display = 'none'; // Hide the down arrow
-//     headerCell.upArrow.style.display = 'inline'; // Show the up arrow
-//   }
-//   headerCell.arrow.classList.toggle('active', sortDirection === 1);
-//   headerCell.upArrow.classList.toggle('active', sortDirection === -1);
-
-//   tableBody.innerHTML = '';
-//   sortedRows.forEach((row) => {
-//     tableBody.appendChild(row);
-//   });
-// }
-
-
-// function exportToCSV() {
-//   const data = [];
-//   const headers = [];
-//   const rows = tableBody.rows;
-
-//   // Get the headers from the table
-//   const tableHeaderRow = tableHeader.rows[0];
-//   for (let i = 0; i < tableHeaderRow.cells.length; i++) {
-//     const headerCell = tableHeaderRow.cells[i];
-//     // Remove the arrow icons from the header cell text, but keep dashes, brackets, and punctuation
-//     const headerText = headerCell.textContent.replace(/[^a-zA-Z0-9\s\-()\[\],.!?:;]/g, '');
-//     headers.push(headerText);
-//   }
-
-//   // Add the headers to the data array
-//   data.push(headers);
-
-//   // Get the data from the table, only considering visible rows
-//   for (let i = 0; i < rows.length; i++) {
-//     if (rows[i].style.display !== 'none') {
-//       const row = [];
-//       const cells = rows[i].cells;
-//       for (let j = 0; j < cells.length; j++) {
-//         const cellText = cells[j].textContent.replace(/[^a-zA-Z0-9\s\-()\[\],.!?:;]/g, '');
-//         row.push(cellText);
-//       }
-//       data.push(row);
-//     }
-//   }
-
-//   const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-//   const blob = new Blob([csvContent], { type: 'text/csv' });
-//   const url = URL.createObjectURL(blob);
-//   const a = document.createElement('a');
-//   a.href = url;
-//   a.download = 'data.csv';
-//   a.click();
-// }
-
-// Add an event listener to a button to trigger the export
-// const exportButton = document.getElementById('export-button');
-// exportButton.addEventListener('click', exportToCSV);
-
 // Add a search input field
 const searchInput = document.getElementById('search-input');
 
@@ -622,32 +557,33 @@ searchInput.addEventListener('input', searchTable);
 
 function searchTable(event) {
   const searchTerm = event.target.value.toLowerCase().replace(/[-\s]/g, ''); // Remove - and spaces from search term
-  const rows = tableBody.rows;
-
-  // Hide all rows initially
-  for (let i = 0; i < rows.length; i++) {
-    rows[i].style.display = 'none';
-  }
-
-  // Show rows that match the search term
-  for (let i = 0; i < rows.length; i++) {
-    const rowCells = rows[i].cells;
-    for (let j = 0; j < rowCells.length; j++) {
-      const cellText = rowCells[j].textContent.toLowerCase().replace(/[-\s]/g, ''); // Remove - and spaces from cell text
-      if (cellText.includes(searchTerm)) {
-        rows[i].style.display = '';
-        break;
+  const visibleData = globalData.filter(row => !row['hidden']); // Get all visible rows
+  const matchingRows = visibleData.filter(row => {
+    for (let key in row) {
+      if (row[key].toString().toLowerCase().includes(searchTerm)) {
+        return true;
       }
     }
-  }
+    return false;
+  });
+
+  // Clear the table body
+  tableBody.innerHTML = '';
+
+  // Create a new table row for each matching row
+  matchingRows.forEach((row) => {
+    const tableRow = document.createElement('tr');
+    for (let key in row) {
+      const tableCell = document.createElement('td');
+      tableCell.textContent = row[key];
+      tableRow.appendChild(tableCell);
+    }
+    tableBody.appendChild(tableRow);
+  });
 }
 
 function clearSearch() {
-  // window.location.href = "/"; // Return to home page
-  // or
   window.location.reload(); // Reload the current page
-  // or
-  // Perform any other action you want
 }
 
 // Add an event listener to the Go to Top button
