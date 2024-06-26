@@ -19,9 +19,10 @@ let rowsPerPage = 10;
 let totalPages = 0;
 let hiddenData = [];
 let headers;
+let selectedFilter = 'All';
 
 initData();
-
+// https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/TMS.csv
 
 function initData() {
   fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
@@ -56,13 +57,10 @@ function initData() {
       filteredData=globalData; //initialize filteredData with globalData
       createFilter();
       createTable(headers, globalData);
-      // console.log("global: "+globalData);
-      // console.log("filter: "+filteredData);
-      // console.log("hidden: "+hiddenData);
     });
 }
 
-let selectedFilter = 'ALL';
+
 
 function createFilter() {
   const filterContainer = document.getElementById('filter-container');
@@ -115,7 +113,6 @@ function colorSelectedFilter(){
   });
 }
 
-// let sortDirection = 1;
 
 function createTable(headers, data) {
   const tableHeaderRow = document.createElement('tr');
@@ -123,9 +120,6 @@ function createTable(headers, data) {
   for (let i = 0; i < headers.length; i++) {
     const tableHeaderCell = document.createElement('th');
     tableHeaderCell.textContent = headers[i];
-    // tableHeaderCell.addEventListener('click', () => {
-    //   sortTable(i);
-    // });
     tableHeaderRow.appendChild(tableHeaderCell);
   }
   
@@ -157,13 +151,14 @@ function createTable(headers, data) {
     
         const faultNos = hiddenData.map((row) => row['Fault No.']);
     
-        if (faultNos.includes(tableCell.textContent) && tableCell.textContent.trim() !== '') {
+        if (faultNos.includes(tableCell.textContent.replace(/^~/, '')) && tableCell.textContent.trim() !== '') {
           tableCell.style.textDecoration = 'underline'; // Underline the clickable text
           tableCell.style.cursor = 'pointer'; // Change the cursor to a pointer on hover
         }
     
         tableCell.addEventListener('click', () => {
-          const reference = tableCell.textContent;
+          const reference = tableCell.textContent.replace(/^~/, ''); // Remove leading ~ character
+          const hasTilde = tableCell.textContent.startsWith('~'); // Check if the cell value starts with ~
           if (reference.trim() !== '') { // Check if the cell is not blank
             const referenceRow = hiddenData.find((row) => row['Fault No.'] === reference);
       
@@ -238,11 +233,17 @@ function createTable(headers, data) {
 
               const popupContent = document.createElement('div');
               popupContent.innerHTML = `
-                <h2>${reference}</h2>
+                <h2>${hasTilde ? `~${reference}` : reference}</h2>
                 <table>
-                  <tr><th>No.</th><td>${referenceRow['Fault No.']}</td></tr>
-                  <tr><th>Monitoring Item</th><td>${referenceRow['Fault Name for display']}</td></tr>
-                  <tr><th>Detect</th><td>${getReferenceText(referenceRow['LEVEL'])}</td></tr>
+                  <tr><th>No.</th><td>${hasTilde ? `~${referenceRow['Fault No.']}` : referenceRow['Fault No.']}</td></tr>
+                  <tr><th>Monitoring Item</th><td>${hasTilde ? `~${referenceRow['Fault Name for display']}` : referenceRow['Fault Name for display']}</td></tr>
+                  <!-- <tr><th>Detect</th><td>${getReferenceText(referenceRow['LEVEL'])}</td></tr> -->
+                  <!-- <tr><th></th><td>${referenceRow['Car Type']}</td></tr> -->
+                  ${hasTilde ?
+                    `<tr><th>Detect</th><td style="font-weight: bold;">${referenceRow['Car Type']}</td></tr>` :
+                    `<tr><th>Detect</th><td style="font-weight: bold;">${getReferenceText(referenceRow['LEVEL'])}</td></tr>`
+                  }
+
                   <!-- Add more columns as needed -->
                 </table>
               `;
@@ -422,22 +423,35 @@ function createPagination() {
   }
 }
 
+// function getReferenceText(text) {
+//   // console.log(text);
+//   const codeRegex = /[A-Z]{2}[A-Z0-9]?\s?\d{3}(?= |$|&|,|>=|#| |>|=|<|<=)/g;
+//   return text.replace(codeRegex, (match) => {
+//     // console.log(`Match: ${match}`);
+//     const referenceRow = hiddenData.find(row => row['Fault No.'] === match);
+//     // console.log(`Reference row: ${referenceRow}`);
+//     if (referenceRow) {
+//       return `<a style="color: black; text-decoration: underline; cursor: pointer;" onclick="${`showPopup('${match}')`}"">${match}</a>`;
+//     } else {
+//       return match;
+//     }
+//   });
+// }
+
 function getReferenceText(text) {
-  // console.log(text);
-  const codeRegex = /[A-Z]{2}[A-Z0-9]?\s?\d{3}(?= |$|&|,|>=|#| |>|=|<|<=)/g;
-  return text.replace(codeRegex, (match) => {
-    // console.log(`Match: ${match}`);
-    const referenceRow = hiddenData.find(row => row['Fault No.'] === match);
-    // console.log(`Reference row: ${referenceRow}`);
-    if (referenceRow) {
-      return `<a style="color: black; text-decoration: underline; cursor: pointer;" onclick="${`showPopup('${match}')`}"">${match}</a>`;
+  const codeRegex = /([~])?[A-Z]{2}[A-Z0-9]?\s?\d{3}(?= |$|&|,|>=|#| |>|=|<|<=)/g;
+  return text.replace(codeRegex, (match, tilde) => {
+    const faultNo = match.replace(/^~/, ''); // Remove the tilde from the faultNo if it exists
+    if (hiddenData.find(row => row['Fault No.'] === faultNo)) {
+      const textDecoration = tilde ? 'underline' : 'underline';
+      return `<a style="color: black; text-decoration: ${textDecoration}; cursor: pointer;" onclick="${`showPopup('${faultNo}', ${tilde? true : false})`}"">${tilde ? '~' + faultNo : faultNo}</a>`;
     } else {
       return match;
     }
   });
 }
 
-function showPopup(faultNo) {
+function showPopup(faultNo,tilde) {
   const referenceRow = hiddenData.find((row) => row['Fault No.'] === faultNo);
   if (!referenceRow) {
     console.error(`No row found with Fault No. ${faultNo}`);
@@ -498,11 +512,14 @@ function showPopup(faultNo) {
 
   const popupContent = document.createElement('div');
   popupContent.innerHTML = `
-    <h2>${faultNo}</h2>
+    <h2>${tilde ? '~' + faultNo : faultNo}</h2>
     <table>
-      <tr><th>No.</th><td>${referenceRow['Fault No.']}</td></tr>
-      <tr><th>Monitoring Item</th><td>${referenceRow['Fault Name for display']}</td></tr>
-      <tr><th>Logic/Conversion Ratio</th><td>${referenceRow['LEVEL']}</td></tr>
+      <tr><th>No.</th><td>${tilde ? '~' + referenceRow['Fault No.'] : referenceRow['Fault No.']}</td></tr>
+      <tr><th>Monitoring Item</th><td>${tilde ? '~' + referenceRow['Fault Name for display'] : referenceRow['Fault Name for display']}</td></tr>
+      ${tilde?
+        `<tr><th>Logic/Conversion Ratio</th><td><b>${referenceRow['Car Type']}</b></td></tr>`:
+        `<tr><th>Logic/Conversion Ratio</th><td><b>${getReferenceText(referenceRow['LEVEL'])}</b></td></tr>`
+      }
       <!-- Add more columns as needed -->
     </table>
   `;
@@ -556,30 +573,26 @@ const searchInput = document.getElementById('search-input');
 searchInput.addEventListener('input', searchTable);
 
 function searchTable(event) {
-  const searchTerm = event.target.value.toLowerCase().replace(/[-\s]/g, ''); // Remove - and spaces from search term
-  const visibleData = globalData.filter(row => !row['hidden']); // Get all visible rows
-  const matchingRows = visibleData.filter(row => {
+  const searchTerm = event.target.value.replace(/[-\s]/g, '').toLowerCase(); // Remove - and spaces from search term and convert to lowercase
+  const searchResults = globalData.filter((row) => {
     for (let key in row) {
-      if (row[key].toString().toLowerCase().includes(searchTerm)) {
+      const value = row[key].toString().replace(/[-\s]/g, '').toLowerCase(); 
+      if (value.includes(searchTerm)) {
         return true;
       }
     }
     return false;
   });
 
-  // Clear the table body
-  tableBody.innerHTML = '';
+  // Update the filteredData array with the search results
+  filteredData = searchResults;
 
-  // Create a new table row for each matching row
-  matchingRows.forEach((row) => {
-    const tableRow = document.createElement('tr');
-    for (let key in row) {
-      const tableCell = document.createElement('td');
-      tableCell.textContent = row[key];
-      tableRow.appendChild(tableCell);
-    }
-    tableBody.appendChild(tableRow);
-  });
+  // Update the currentPage and totalPages based on the search results
+  totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  currentPage = 1;
+
+  // Create a new table with the search results
+  createTable(headers, filteredData);
 }
 
 function clearSearch() {
