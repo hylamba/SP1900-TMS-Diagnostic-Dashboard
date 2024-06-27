@@ -25,8 +25,8 @@ initData();
 // https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/TMS.csv
 
 function initData() {
-  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
-  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
+  fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
+  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
     .then(response => response.text())
     .then(csvData => {
       const csvRows = csvData.split('\n');
@@ -94,6 +94,10 @@ function createFilter() {
       }
       hiddenData = globalData.filter(row => row['hidden']); // Update hiddenData array
       currentPage = 1; // Reset current page to 1 when filter changes
+      
+      // Call searchTable() to handle search filtering
+      searchTable({ target: document.getElementById('search-input') });
+
       createTable(headers, filteredData);
       createPagination();
     });
@@ -238,9 +242,9 @@ function createTable(headers, data) {
                   <tr><th>No.</th><td>${hasTilde ? `~${referenceRow['Fault No.']}` : referenceRow['Fault No.']}</td></tr>
                   <tr><th>Monitoring Item</th><td>${hasTilde ? `~${referenceRow['Fault Name for display']}` : referenceRow['Fault Name for display']}</td></tr>
                   <!-- <tr><th>Detect</th><td>${getReferenceText(referenceRow['LEVEL'])}</td></tr> -->
-                  <!-- <tr><th></th><td>${referenceRow['Car Type']}</td></tr> -->
+                  <!-- <tr><th></th><td>${getReferenceText(referenceRow['Car Type'])}</td></tr> -->
                   ${hasTilde ?
-                    `<tr><th>Detect</th><td style="font-weight: bold;">${referenceRow['Car Type']}</td></tr>` :
+                    `<tr><th>Detect</th><td style="font-weight: bold;">${getReferenceText(referenceRow['Car Type'])}</td></tr>` :
                     `<tr><th>Detect</th><td style="font-weight: bold;">${getReferenceText(referenceRow['LEVEL'])}</td></tr>`
                   }
 
@@ -517,7 +521,7 @@ function showPopup(faultNo,tilde) {
       <tr><th>No.</th><td>${tilde ? '~' + referenceRow['Fault No.'] : referenceRow['Fault No.']}</td></tr>
       <tr><th>Monitoring Item</th><td>${tilde ? '~' + referenceRow['Fault Name for display'] : referenceRow['Fault Name for display']}</td></tr>
       ${tilde?
-        `<tr><th>Logic/Conversion Ratio</th><td><b>${referenceRow['Car Type']}</b></td></tr>`:
+        `<tr><th>Logic/Conversion Ratio</th><td><b>${getReferenceText(referenceRow['Car Type'])}</b></td></tr>`:
         `<tr><th>Logic/Conversion Ratio</th><td><b>${getReferenceText(referenceRow['LEVEL'])}</b></td></tr>`
       }
       <!-- Add more columns as needed -->
@@ -574,18 +578,22 @@ searchInput.addEventListener('input', searchTable);
 
 function searchTable(event) {
   const searchTerm = event.target.value.replace(/[-\s]/g, '').toLowerCase(); // Remove - and spaces from search term and convert to lowercase
-  const searchResults = globalData.filter((row) => {
-    for (let key in row) {
-      const value = row[key].toString().replace(/[-\s]/g, '').toLowerCase(); 
-      if (value.includes(searchTerm)) {
-        return true;
-      }
-    }
-    return false;
-  });
 
-  // Update the filteredData array with the search results
-  filteredData = searchResults;
+  if (searchTerm === '') {
+    // If search input is empty, reset filteredData to original filtered data
+    filteredData = (selectedFilter === 'All')? globalData : globalData.filter((row) => row['Fault No.'].startsWith(selectedFilter + '-'));
+  } else {
+    const searchResults = filteredData.filter((row) => {
+      for (let key in row) {
+        const value = row[key].toString().replace(/[-\s]/g, '').toLowerCase(); 
+        if (value.includes(searchTerm)) {
+          return true;
+        }
+      }
+      return false;
+    });
+    filteredData = searchResults;
+  }
 
   // Update the currentPage and totalPages based on the search results
   totalPages = Math.ceil(filteredData.length / rowsPerPage);
