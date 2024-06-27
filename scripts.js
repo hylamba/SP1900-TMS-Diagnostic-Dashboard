@@ -226,8 +226,31 @@ function createTable(headers, data) {
                   popup.style.left = `${e.clientX - offsetX}px`;
                 }
               });
-          
+
               document.addEventListener('mouseup', () => {
+                isDragging = false;
+              });
+
+              // Add event listeners for dragging (touch events)
+              popup.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                offsetX = e.touches[0].clientX - popup.offsetLeft;
+                offsetY = e.touches[0].clientY - popup.offsetTop;
+                // Bring the popup to the front when dragging starts
+                popupArray.forEach((p) => {
+                  p.style.zIndex = popupCount;
+                });
+                popup.style.zIndex = popupCount + 1000;
+              });
+
+              document.addEventListener('touchmove', (e) => {
+                if (isDragging) {
+                  popup.style.top = `${e.touches[0].clientY - offsetY}px`;
+                  popup.style.left = `${e.touches[0].clientX - offsetX}px`;
+                }
+              });
+
+              document.addEventListener('touchend', () => {
                 isDragging = false;
               });
 
@@ -508,6 +531,29 @@ function showPopup(faultNo,tilde) {
   });
 
   document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  // Add event listeners for dragging (touch events)
+  popup.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    offsetX = e.touches[0].clientX - popup.offsetLeft;
+    offsetY = e.touches[0].clientY - popup.offsetTop;
+    // Bring the popup to the front when dragging starts
+    popupArray.forEach((p) => {
+      p.style.zIndex = popupCount;
+    });
+    popup.style.zIndex = popupCount + 1000;
+  });
+
+  document.addEventListener('touchmove', (e) => {
+    if (isDragging) {
+      popup.style.top = `${e.touches[0].clientY - offsetY}px`;
+      popup.style.left = `${e.touches[0].clientX - offsetX}px`;
+    }
+  });
+
+  document.addEventListener('touchend', () => {
     isDragging = false;
   });
 

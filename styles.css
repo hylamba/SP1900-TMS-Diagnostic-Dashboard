@@ -1,4 +1,4 @@
-/* styles.css */
+/* styles.css
 body {
     font-family: 'Calibri';
     background-color: #f2f2f2;
@@ -102,12 +102,163 @@ input[type="search"]:focus {
   }
   
   .filter-button:hover {
-    background-color: #ccc; /* change this to your desired hover color */
-    color: gray; /* same hover text color as pagination buttons */
+    background-color: #ccc; 
+    color: gray; 
   }
   
 
   .pagination-link:hover {
+    background-color: #ccc;
+    cursor: pointer;
+  } */
+
+  /* styles.css */
+
+body {
+    font-family: 'Calibri';
+    background-color: #f2f2f2;
+    padding: 20px;
+    transition: background-color 0.5s ease; /* add a smooth transition effect */
+  }
+  
+  .container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+    overflow-x: auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.5s ease; /* add a smooth transition effect */
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  
+  input[type="search"] {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 50%;
+    margin-bottom: 10px;
+    transition: width 0.5s ease; /* add a smooth transition effect */
+  }
+  
+  input[type="search"]:focus {
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    width: 70%; /* expand the search input on focus */
+  }
+  
+  .arrow, .up-arrow {
+    color: gray;
+    margin-left: 5px;
+    transition: color 0.5s ease; /* add a smooth transition effect */
+  }
+  
+  .arrow.active, .up-arrow.active {
+    color: black;
+  }
+  
+  .gototop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1;
+    transition: opacity 0.5s ease; /* add a smooth transition effect */
+  }
+  
+  .js-top {
+    display: none;
+  }
+  
+  .js-top.show {
+    display: block;
+  }
+  
+  .js-gotop {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    border: none;
+    border-radius: 50%;
+    background-color: #333;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.5s ease; /* add a smooth transition effect */
+  }
+  
+  .js-gotop:hover {
+    background-color: #555;
+  }
+  
+  .filter-button {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-right: 10px;
+    cursor: pointer;
+    background: white;
+    color: #727578;
+    margin-bottom: 10px;
+    font-family: 'Calibri';
+    font-size: 16px;
+    transition: background-color 0.5s ease; /* add a smooth transition effect */
+  }
+  
+  .filter-button:hover {
+    background-color: #ccc; /* change this to your desired hover color */
+    color: gray; /* same hover text color as pagination buttons */
+  }
+  .pagination-link {
+    transition: background-color 0.3s, color 0.3s; /* Add transition effects */
+  }
+  .pagination-link:hover {
     background-color: #ccc; /* change this to your desired hover color */
     cursor: pointer;
   }
+
+  
+  
+  /* add some media queries to make the design responsive */
+  
+  @media only screen and (max-width: 768px) {
+    .container {
+      width: 90%;
+    }
+    input[type="search"] {
+      width: 70%;
+    }
+  }
+  
+  @media only screen and (max-width: 480px) {
+    .container {
+      width: 95%;
+    }
+    input[type="search"] {
+      width: 90%;
+    }
+  }
+
+  
