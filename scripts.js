@@ -276,11 +276,11 @@ function createTable(headers, data) {
                   <tr><th>Monitoring Item</th><td>${hasTilde ? `~${referenceRow['Fault Name for display']}` : referenceRow['Fault Name for display']}</td></tr>
                   <!-- <tr><th>Detect</th><td>${getReferenceText(referenceRow['LEVEL'])}</td></tr> -->
                   <!-- <tr><th></th><td>${getReferenceText(referenceRow['Car Type'])}</td></tr> -->
+                  
                   ${hasTilde ?
-                    `<tr><th>Detect</th><td style="font-weight: bold;">${getReferenceText(referenceRow['Car Type'])}</td></tr>` :
-                    `<tr><th>Detect</th><td style="font-weight: bold;">${getReferenceText(referenceRow['LEVEL'])}</td></tr>`
+                    `<tr><th>Detect</th><td><b>${getReferenceText(referenceRow['Car Type'])}</b><br>${getReferenceText(referenceRow['LEVEL'])}</td></tr>` :
+                    `<tr><th>Detect</th><td><b>${getReferenceText(referenceRow['LEVEL'])}</b><br>${getReferenceText(referenceRow['Car Type'])}</td></tr>`
                   }
-
                   <!-- Add more columns as needed -->
                 </table>
               `;
@@ -724,9 +724,9 @@ function showPopup(faultNo,tilde) {
     <table>
       <tr><th>No.</th><td>${tilde ? '~' + referenceRow['Fault No.'] : referenceRow['Fault No.']}</td></tr>
       <tr><th>Monitoring Item</th><td>${tilde ? '~' + referenceRow['Fault Name for display'] : referenceRow['Fault Name for display']}</td></tr>
-      ${tilde?
-        `<tr><th>Logic/Conversion Ratio</th><td><b>${getReferenceText(referenceRow['Car Type'])}</b></td></tr>`:
-        `<tr><th>Logic/Conversion Ratio</th><td><b>${getReferenceText(referenceRow['LEVEL'])}</b></td></tr>`
+      ${tilde ?
+        `<tr><th>Detect</th><td><b>${getReferenceText(referenceRow['Car Type'])}</b><br>${getReferenceText(referenceRow['LEVEL'])}</td></tr>` :
+        `<tr><th>Detect</th><td><b>${getReferenceText(referenceRow['LEVEL'])}</b><br>${getReferenceText(referenceRow['Car Type'])}</td></tr>`
       }
       <!-- Add more columns as needed -->
     </table>
