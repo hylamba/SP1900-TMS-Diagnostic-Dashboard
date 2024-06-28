@@ -783,11 +783,10 @@ searchInput.addEventListener('input', searchTable);
 function searchTable(event) {
   const searchTerm = event.target.value.replace(/[-\s]/g, '').toLowerCase(); // Remove - and spaces from search term and convert to lowercase
 
-  if (searchTerm === '') {
-    // If search input is empty, reset filteredData to original filtered data
-    filteredData = (selectedFilter === 'All')? globalData : globalData.filter((row) => row['Fault No.'].startsWith(selectedFilter + '-'));
-  } else {
-    const searchResults = filteredData.filter((row) => {
+  let searchData = (selectedFilter === 'All')? globalData : globalData.filter((row) => row['Fault No.'].startsWith(selectedFilter + '-'));
+
+  if (searchTerm !== '') {
+    searchData = searchData.filter((row) => {
       for (let key in row) {
         const value = row[key].toString().replace(/[-\s]/g, '').toLowerCase(); 
         if (value.includes(searchTerm)) {
@@ -796,8 +795,9 @@ function searchTable(event) {
       }
       return false;
     });
-    filteredData = searchResults;
   }
+
+  filteredData = searchData;
 
   // Update the currentPage and totalPages based on the search results
   totalPages = Math.ceil(filteredData.length / rowsPerPage);
