@@ -22,10 +22,12 @@ let headers;
 let selectedFilter = 'All';
 
 initData();
+// https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/all.csv
 // https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/TMS.csv
 
 function initData() {
   fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/CAB.csv')
+  // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/all.csv')
   // fetch('https://raw.githubusercontent.com/hylamba/SP1900-TMS-Diagnostic-Dashboard/main/test.csv')
     .then(response => response.text())
     .then(csvData => {
@@ -181,7 +183,8 @@ function createTable(headers, data) {
               // Create a popup to show the details of the referenced row
               const popup = document.createElement('div');
               popup.style.position = 'absolute';
-              
+              popup.style.width = '300px';
+
               if (popupArray.length === 0) {
                 // If all popups have been closed, reset the popup location
                 popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
@@ -369,16 +372,16 @@ function createPagination() {
 
   paginationContainer.appendChild(rowsPerPageSelect);
 
-  // const firstPageButton = document.createElement('a');
-  // firstPageButton.href = '#';
-  // firstPageButton.textContent = 'First';
-  // firstPageButton.className = 'pagination-link';
-  // firstPageButton.addEventListener('click', (e) => {
-  //   e.preventDefault();
-  //   currentPage = 1;
-  //   createTable(headers, globalData);
-  // });
-  // paginationContainer.appendChild(firstPageButton);
+  const firstPageButton = document.createElement('a');
+  firstPageButton.href = '#';
+  firstPageButton.textContent = 'First';
+  firstPageButton.className = 'pagination-link';
+  firstPageButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    currentPage = 1;
+    createTable(headers, filteredData);
+  });
+  paginationContainer.appendChild(firstPageButton);
 
   const previousPageButton = document.createElement('a');
   previousPageButton.href = '#';
@@ -393,21 +396,154 @@ function createPagination() {
   });
   paginationContainer.appendChild(previousPageButton);
 
-  for (let i = 1; i <= totalPages; i++) {
-    const paginationLink = document.createElement('a');
-    paginationLink.href = '#';
-    paginationLink.textContent = i;
-    paginationLink.className = 'pagination-link';
-    if (i === currentPage) {
-      paginationLink.className += ' active';
+  if (totalPages <= 5) {
+    for (let i = 1; i <= totalPages; i++) {
+      const paginationLink = document.createElement('a');
+      paginationLink.href = '#';
+      paginationLink.textContent = i;
+      paginationLink.className = 'pagination-link';
+      if (i === currentPage) {
+        paginationLink.className += ' active';
+      }
+
+      paginationLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = i;
+        createTable(headers, filteredData);
+      });
+      paginationContainer.appendChild(paginationLink);
+    }
+  } else if (currentPage <= 3) {
+    for (let i = 1; i <= 5; i++) {
+      const paginationLink = document.createElement('a');
+      paginationLink.href = '#';
+      paginationLink.textContent = i;
+      paginationLink.className = 'pagination-link';
+      if (i === currentPage) {
+        paginationLink.className += ' active';
+      }
+
+      paginationLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = i;
+        createTable(headers, filteredData);
+      });
+      paginationContainer.appendChild(paginationLink);
     }
 
-    paginationLink.addEventListener('click', (e) => {
+    const ellipsisRight = document.createElement('span');
+    ellipsisRight.textContent = ' ... ';
+    ellipsisRight.style.color = 'gray';
+    ellipsisRight.className = 'pagination-ellipsis';
+    ellipsisRight.style.border = 'none';
+    ellipsisRight.style.cursor = 'default';
+    ellipsisRight.style.pointerEvents = 'none'; // Add this line to prevent clicking
+    paginationContainer.appendChild(ellipsisRight);
+
+    const lastPageLink = document.createElement('a');
+    lastPageLink.href = '#';
+    lastPageLink.textContent = totalPages;
+    lastPageLink.className = 'pagination-link';
+    lastPageLink.addEventListener('click', (e) => {
       e.preventDefault();
-      currentPage = i;
+      currentPage = totalPages;
       createTable(headers, filteredData);
     });
-    paginationContainer.appendChild(paginationLink);
+    paginationContainer.appendChild(lastPageLink);
+  } else if (currentPage >= totalPages - 2) {
+    const firstPageLink = document.createElement('a');
+    firstPageLink.href = '#';
+    firstPageLink.textContent = 1;
+    firstPageLink.className = 'pagination-link';
+    firstPageLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentPage = 1;
+      createTable(headers, filteredData);
+    });
+    paginationContainer.appendChild(firstPageLink);
+
+    const ellipsisLeft = document.createElement('span');
+    ellipsisLeft.textContent = ' ... ';
+    ellipsisLeft.style.color = 'gray';
+    ellipsisLeft.className = 'pagination-ellipsis';
+    ellipsisLeft.style.border = 'none';
+    ellipsisLeft.style.cursor = 'default';
+    ellipsisLeft.style.pointerEvents = 'none'; // Add this line to prevent clicking
+    paginationContainer.appendChild(ellipsisLeft);
+
+    for (let i = totalPages - 4; i <= totalPages;i++) {
+      const paginationLink = document.createElement('a');
+      paginationLink.href = '#';
+      paginationLink.textContent = i;
+      paginationLink.className = 'pagination-link';
+      if (i === currentPage) {
+        paginationLink.className += 'ctive';
+      }
+
+      paginationLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = i;
+        createTable(headers, filteredData);
+      });
+      paginationContainer.appendChild(paginationLink);
+    }
+  } else {
+    const firstPageLink = document.createElement('a');
+    firstPageLink.href = '#';
+    firstPageLink.textContent = 1;
+    firstPageLink.className = 'pagination-link';
+    firstPageLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentPage = 1;
+      createTable(headers, filteredData);
+    });
+    paginationContainer.appendChild(firstPageLink);
+
+    const ellipsisLeft = document.createElement('span');
+    ellipsisLeft.textContent = ' ... ';
+    ellipsisLeft.style.color = 'gray';
+    ellipsisLeft.className = 'pagination-ellipsis';
+    ellipsisLeft.style.border = 'none';
+    ellipsisLeft.style.cursor = 'default';
+    ellipsisLeft.style.pointerEvents = 'none'; // Add this line to prevent clicking
+    paginationContainer.appendChild(ellipsisLeft);
+
+    for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+      const paginationLink = document.createElement('a');
+      paginationLink.href = '#';
+      paginationLink.textContent = i;
+      paginationLink.className = 'pagination-link';
+      if (i === currentPage) {
+        paginationLink.className += 'ctive';
+      }
+
+      paginationLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = i;
+        createTable(headers, filteredData);
+      });
+      paginationContainer.appendChild(paginationLink);
+    }
+
+    const ellipsisRight = document.createElement('span');
+    ellipsisRight.textContent = ' ... ';
+    ellipsisRight.style.color = 'gray';
+    ellipsisRight.className = 'pagination-ellipsis';
+    ellipsisRight.style.border = 'none';
+    ellipsisRight.style.cursor = 'default';
+    ellipsisRight.style.pointerEvents = 'none'; // Add this line to prevent clicking
+    paginationContainer.appendChild(ellipsisRight);
+
+    const lastPageLink = document.createElement('a');
+    lastPageLink.href = '#';
+    lastPageLink.textContent = totalPages;
+    lastPageLink.className = 'pagination-link';
+    lastPageLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentPage = totalPages;
+      createTable(headers, filteredData);
+    });
+    paginationContainer.appendChild(lastPageLink);
   }
 
   const nextPageButton = document.createElement('a');
@@ -423,16 +559,32 @@ function createPagination() {
   });
   paginationContainer.appendChild(nextPageButton);
 
-  // const lastPageButton = document.createElement('a');
-  // lastPageButton.href = '#';
-  // lastPageButton.textContent = 'Last';
-  // lastPageButton.className = 'pagination-link';
-  // lastPageButton.addEventListener('click', (e) => {
-  //   e.preventDefault();
-  //   currentPage = totalPages;
-  //   createTable(headers, globalData);
-  // });
-  // paginationContainer.appendChild(lastPageButton);
+  const lastPageButton = document.createElement('a');
+  lastPageButton.href = '#';
+  lastPageButton.textContent = 'Last';
+  lastPageButton.className = 'pagination-link';
+  lastPageButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    currentPage = totalPages;
+    createTable(headers, filteredData);
+  });
+  paginationContainer.appendChild(lastPageButton);
+
+  if (currentPage === 1) {
+    firstPageButton.style.display = 'none';
+    previousPageButton.style.display = 'none';
+  } else {
+    firstPageButton.style.display = 'inline';
+    previousPageButton.style.display = 'inline';
+  }
+  
+  if (currentPage === totalPages) {
+    lastPageButton.style.display = 'none';
+    nextPageButton.style.display = 'none';
+  } else {
+    lastPageButton.style.display = 'inline';
+    nextPageButton.style.display = 'inline';
+  }
 
   // Style the pagination container
   paginationContainer.style.textAlign = 'right';
@@ -441,36 +593,27 @@ function createPagination() {
   // Style the pagination links
   const paginationLinks = paginationContainer.children;
   for (let i = 0; i < paginationLinks.length; i++) {
-    paginationLinks[i].style.font = "Calibri";
-    paginationLinks[i].style.border = '1px solid #ddd';
-    paginationLinks[i].style.borderRadius = '5px';
-    paginationLinks[i].style.padding = '5px 10px';
-    paginationLinks[i].style.margin = '0 5px';
-    paginationLinks[i].style.cursor = 'pointer';
-    paginationLinks[i].style.color = 'gray';
-    paginationLinks[i].style.textDecoration = 'none';
-
-    if (paginationLinks[i].classList.contains('active')) {
-      paginationLinks[i].style.background = '#727578';
-      paginationLinks[i].style.color = '#fff';
+    if (paginationLinks[i].className !== 'pagination-ellipsis') {
+      paginationLinks[i].classList.remove('active');
+      if (paginationLinks[i].textContent === currentPage.toString()) {
+        paginationLinks[i].classList.add('active');
+      }
+      paginationLinks[i].style.font = "Calibri";
+      paginationLinks[i].style.border = '1px solid #ddd';
+      paginationLinks[i].style.borderRadius = '5px';
+      paginationLinks[i].style.padding = '5px 10px';
+      paginationLinks[i].style.margin = '0 5px';
+      paginationLinks[i].style.cursor = 'pointer';
+      paginationLinks[i].style.color = 'gray';
+      paginationLinks[i].style.textDecoration = 'none';
+  
+      if (paginationLinks[i].classList.contains('active')) {
+        paginationLinks[i].style.background = '#727578';
+        paginationLinks[i].style.color = '#fff';
+      }
     }
   }
 }
-
-// function getReferenceText(text) {
-//   // console.log(text);
-//   const codeRegex = /[A-Z]{2}[A-Z0-9]?\s?\d{3}(?= |$|&|,|>=|#| |>|=|<|<=)/g;
-//   return text.replace(codeRegex, (match) => {
-//     // console.log(`Match: ${match}`);
-//     const referenceRow = hiddenData.find(row => row['Fault No.'] === match);
-//     // console.log(`Reference row: ${referenceRow}`);
-//     if (referenceRow) {
-//       return `<a style="color: black; text-decoration: underline; cursor: pointer;" onclick="${`showPopup('${match}')`}"">${match}</a>`;
-//     } else {
-//       return match;
-//     }
-//   });
-// }
 
 function getReferenceText(text) {
   const codeRegex = /([~])?[A-Z]{2}[A-Z0-9]?\s?\d{3}(?= |$|&|,|>=|#| |>|=|<|<=)/g;
@@ -495,6 +638,8 @@ function showPopup(faultNo,tilde) {
 
   const popup = document.createElement('div');
   popup.style.position = 'absolute';
+  popup.style.width = '300px';
+  
   if (popupArray.length === 0) {
     // If all popups have been closed, reset the popup location
     popup.style.top = `${window.scrollY + (window.innerHeight - popup.offsetHeight) / 2}px`;
@@ -661,6 +806,181 @@ function searchTable(event) {
   // Create a new table with the search results
   createTable(headers, filteredData);
 }
+
+function showNote() {
+  // Create a new popup element
+  const notePopup = document.createElement('div');
+  notePopup.className = 'note-popup';
+
+  // Create a close button
+  const closeButton = document.createElement('button');
+  closeButton.textContent = '̽';
+  closeButton.style.font = 'Calibri';
+  closeButton.style.fontSize = '40px'; // Large font size
+  closeButton.style.position = 'absolute'; // Set position to absolute
+  closeButton.style.top = '10px'; // Set top position to 10px
+  closeButton.style.right = '10px'; // Set right position to 10px
+  closeButton.style.lineHeight = '40px'; // Set line height to match font size
+  closeButton.style.width = '30px'; // Smaller width
+  closeButton.style.height = '30px'; // Smaller height
+  closeButton.style.padding = '5px'; // Increase padding to make clickable area larger
+  closeButton.style.borderRadius = '50%'; // Make the button circular
+  closeButton.style.cursor = 'pointer';
+  closeButton.style.backgroundColor = 'transparent';
+  closeButton.style.border = 'transparent';
+  closeButton.style.fontWeight = 'bold';
+  closeButton.style.color = 'gray'; // Set the initial color to gray
+  closeButton.onmouseover = () => closeButton.style.color = 'black'; // Change the color to black on hover
+  closeButton.onmouseout = () => closeButton.style.color = 'gray'; // Change the color back to gray on mouseout
+  closeButton.addEventListener('click', () => {
+    notePopup.remove();
+  });
+
+  // Create a tabbed interface for the note
+  const tabs = document.createElement('div');
+  tabs.className = 'tabs';
+
+  const tabButtons = [];
+  const tabContents = [];
+
+  // Create tabs for each section
+  const sections = [
+    { title: 'Logical Operators', content: `
+      <ul>
+        <li><strong>U</strong> OR</li>
+        <li><strong>~</strong> Negation</li>
+        <li><strong>^</strong> Exclusive OR</li>
+        <li><strong>&</strong> AND</li>
+        <li><strong>< , > , == , => , =< , !=</strong> Comparison</li>
+        <li><strong>#</strong> Direct value</li>
+      </ul>
+    ` },
+    { title: 'Detect and Clear', content: `
+      <ul>
+        <li><strong>D</strong> Detect</li>
+        <li><strong>C</strong> Clear</li>
+        <li><strong>DTD</strong> Detect Time Delay</li>
+        <li><strong>CTD</strong> Clear Time Delay</li>
+      </ul>
+    ` },
+    { title: 'Car Types', content: `
+      <ul>
+        <li><strong>DT-CU1</strong> Central Unit 1 of DT car</li>
+        <li><strong>DT-CU2</strong> Central Unit 2 of DT car</li>
+        <li><strong>PM</strong> PM1, PM2 car</li>
+        <li><strong>M</strong> MW1, MW2 car</li>
+        <li><strong>T</strong> TH1, TCH car</li>
+      </ul>
+    ` },
+    { title: 'Fault Codes', content: `
+      <ul>
+        <li><strong>TMS</strong> TMS (Fault made by application)</li>
+        <li><strong>CAB</strong> CAB</li>
+        <li><strong>VOBC</strong> VOBC, ATP</li>
+        <li><strong>BRAKE</strong> Brake system, Air compressor</li>
+        <li><strong>CI1</strong> Converter inverter1</li>
+        <li><strong>CI2</strong> Converter inverter2</li>
+        <li><strong>SIV1</strong> SIV1</li>
+        <li><strong>SIV2</strong> SIV2</li>
+        <li><strong>DCU U</strong> Door system up side</li>
+        <li><strong>DCU D</strong> Door system down side</li>
+        <li><strong>A/C1</strong> Air Condition Control Board1 (ACCB1)</li>
+        <li><strong>A/C2</strong> Air Condition Control Board2 (ACCB2)</li>
+        <li><strong>COM</strong> Train Radio, Driver Information Display (Analog)</li>
+        <li><strong>MC</strong> New Media Controller</li>
+        <li><strong>PID</strong> Passenger Information Display1~6 (Analog)</li>
+        <li><strong>TNI</strong> Train Number Indicator</li>
+        <li><strong>DI</strong> Destination Indicator</li>
+        <li><strong>ETC</strong> Pantograph, Main transfer, Automatic Power Control system, etc.</li>
+        <li><strong>DRM</strong> Dynamic Route Map / Gangway End Display system</li>
+        <li><strong>DPID</strong> Passenger Information Display system (Digital)</li>
+        <li><strong>DCCTV</strong> CCTV system (Digital)</li>
+      </ul>
+    ` },
+  ];
+
+  sections.forEach((section, index) => {
+    const tabButton = document.createElement('button');
+    tabButton.className = 'tab-button';
+    tabButton.textContent = section.title;
+    tabButton.addEventListener('click', () => {
+      tabButtons.forEach((tab) => tab.classList.remove('active'));
+      tabButton.classList.add('active');
+      tabContents.forEach((content) => content.style.display = 'none');
+      tabContents[index].style.display = 'block';
+    });
+    tabButtons.push(tabButton);
+    tabs.appendChild(tabButton);
+
+    const tabContent = document.createElement('div');
+    tabContent.className = 'tab-content';
+    tabContent.innerHTML = section.content;
+    tabContent.style.display = index === 0? 'block' : 'none';
+    tabContents.push(tabContent);
+    notePopup.appendChild(tabContent);
+
+    if (index === 0) {
+      tabButton.classList.add('active');
+    }
+  });
+
+  // Append the tabs and close button to the popup
+  notePopup.appendChild(tabs);
+  notePopup.appendChild(closeButton);
+
+  // Append the popup to the body of the document
+  document.body.appendChild(notePopup);
+  // Make the popup draggable
+  let isDragging = false;
+  let startX, startY, initialX, initialY;
+  notePopup.style.cursor = 'move';
+
+  notePopup.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    initialX = notePopup.offsetLeft;
+    initialY = notePopup.offsetTop;
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      notePopup.style.top = `${initialY + e.clientY - startY}px`;
+      notePopup.style.left = `${initialX + e.clientX - startX}px`;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+  notePopup.addEventListener('touchstart', (e) => {
+    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+      e.preventDefault();
+    }
+    isDragging = true;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    initialX = notePopup.offsetLeft;
+    initialY = notePopup.offsetTop;
+  });
+  
+  document.addEventListener('touchmove', (e) => {
+    if (isDragging && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+      e.preventDefault();
+    }
+    if (isDragging) {
+      notePopup.style.top = `${initialY + e.touches[0].clientY - startY}px`;
+      notePopup.style.left = `${initialX + e.touches[0].clientX - startX}px`;
+    }
+  }, { passive: false});
+  
+  document.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+}
+
+const noteLink = document.getElementById('note-link');
+noteLink.addEventListener('click', showNote);
 
 function clearSearch() {
   window.location.reload(); // Reload the current page

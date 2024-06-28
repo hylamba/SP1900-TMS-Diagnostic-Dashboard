@@ -8,6 +8,7 @@ body {
   }
   
   .container {
+    position: relative;
     width: 80%;
     margin: auto;
     overflow: hidden;
@@ -114,18 +115,39 @@ body {
   }
   
   .filter-button:hover {
-    background-color: #ccc; /* change this to your desired hover color */
+    background-color: #ccc; 
     color: gray; /* same hover text color as pagination buttons */
   }
   .pagination-link {
-    transition: background-color 0.3s, color 0.3s; /* Add transition effects */
+    transition: background-color 0.3s, color 0.3s; 
   }
   .pagination-link:hover {
-    background-color: #ccc; /* change this to your desired hover color */
+    background-color: #ccc; 
     cursor: pointer;
   }
 
-  
+  .note-link {
+    position: absolute;
+    top: 10px;
+    right: 0px;
+    margin-right: 20px;
+    font-size: 14px;
+    font-family: 'Calibri',sans-serif;
+  }
+
+  .note-link a {
+    color: gray;
+  }
+
+  .note-link a:hover {
+    color: black; 
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   
   /* add some media queries to make the design responsive */
   
@@ -147,4 +169,62 @@ body {
     }
   }
 
-  
+  /* Note popup styles */
+.note-popup {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 400px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  /* margin-bottom: 20px; */
+  font-family: 'Calibri',sans-serif;
+}
+
+.tab-button {
+  flex-grow: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #f7f7f7;
+  transition: background-color 0.2s ease;
+  font-family: 'Calibri',sans-serif;
+  font-size: 14px;
+}
+
+.tab-button:hover {
+  background-color: #eee;
+}
+
+.tab-button.active {
+  background-color: #ddd;
+}
+
+.tab-content {
+  padding: 20px;
+}
+
+.tab-content ul {
+  list-style: none;
+  padding:0;
+  margin: 0;
+}
+
+.tab-content li {
+  margin-bottom: 10px;
+}
+
+.tab-content strong {
+  font-weight: bold;
+}

@@ -24,6 +24,9 @@
 <body>
     <div class="container">
         <h1 id="dashboard-title" onclick="clearSearch()">SP1900 TMS Diagnostic Dashboard</h1>
+        <div class="note-link" id="note-link">
+            <a href="#" id="note-anchor">Note</a>
+          </div>
         <input type="search" id="search-input" placeholder="Search...">
         <div id="filter-container"></div>
         <table id="table">
@@ -33,6 +36,7 @@
         <div id="pagination-container"></div>
     </div>
     <script src="scripts.js"></script>
+    <!-- <script> showNote();</script> -->
     <button class="js-gotop" style="display: none; position: fixed; bottom: 20px; right: 20px;">
         <i class="fas fa-arrow-up"></i>
     </button>
